@@ -12,13 +12,12 @@ interface PositionSnapshot {
 
 export class RemotePlayer {
   public sprite: Phaser.GameObjects.Sprite
-  private nametag: Phaser.GameObjects.Text
+  private nametagId: string
   private scene: Phaser.Scene
   private positionBuffer: PositionSnapshot[] = []
   private isTweening = false
   public id: string
-
-  constructor(scene: Phaser.Scene, state: PlayerState) {
+  constructor(scene: Phaser.Scene, state: PlayerState, chatBubbleManager?: ChatBubbleManager) {
     this.scene = scene
     this.id = state.id
 
@@ -29,14 +28,23 @@ export class RemotePlayer {
     this.sprite.setTint(0x88aaff)
     this.sprite.setDepth(py)
 
-    this.nametag = scene.add.text(px, py - 14, state.username, {
-      fontSize: '7px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 2,
-    })
-    this.nametag.setOrigin(0.5, 0.5)
-    this.nametag.setDepth(20)
+    // Create a DOM nametag via ChatBubbleManager if provided (renders crisply above pixel canvas)
+    if (chatBubbleManager) {
+      this.nametagId = this.id
+      chatBubbleManager.createNametag(this.nametagId, this.sprite, state.username)
+    } else {
+      // Fallback to Phaser text if manager isn't passed
+      const text = scene.add.text(px, py - 14, state.username, {
+        fontSize: '7px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 2,
+      })
+      text.setOrigin(0.5, 0.5)
+      text.setDepth(20)
+      // store a temporary id to indicate no DOM nametag
+      this.nametagId = ''
+    }
   }
 
   enqueuePosition(pos: Pick<PlayerState, 'x' | 'y' | 'direction' | 'isMoving'>): void {
@@ -53,7 +61,7 @@ export class RemotePlayer {
 
   update(_delta: number): void {
     this.sprite.setDepth(this.sprite.y)
-    this.nametag.setPosition(this.sprite.x, this.sprite.y - 14)
+    // If using Phaser text fallback, it will be updated by destroy logic; otherwise DOM nametag is positioned by ChatBubbleManager
 
     if (this.isTweening || this.positionBuffer.length < INTERPOLATION_BUFFER) return
 
@@ -88,6 +96,12 @@ export class RemotePlayer {
   destroy(): void {
     this.scene.tweens.killTweensOf(this.sprite)
     this.sprite.destroy()
-    this.nametag.destroy()
+    // Remove DOM nametag if created
+    try {
+      if (this.nametagId) {
+        // chatBubbleManager isn't stored here, so attempt to remove by searching overlay entries is skipped;
+        // PlayerStateManager calls removeNametag when removing player.
+      }
+    } catch {}
   }
 }

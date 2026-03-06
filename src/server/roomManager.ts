@@ -45,7 +45,8 @@ export class RoomManager {
     // Sanity check: max delta 3 tiles per update
     if (Math.abs(pos.x - player.x) > 3 || Math.abs(pos.y - player.y) > 3) return
 
-    player.x = Math.max(0, Math.min(32, pos.x))
+    // Clamp to current map bounds (MAP_WIDTH=39 => max x index 38, MAP_HEIGHT=24 => max y index 23)
+    player.x = Math.max(0, Math.min(38, pos.x))
     player.y = Math.max(0, Math.min(23, pos.y))
     player.direction = pos.direction as PlayerState['direction']
     player.isMoving = pos.isMoving

@@ -24,9 +24,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Set world bounds
-    this.cameras.main.setBounds(0, 0, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
-    this.physics.world.setBounds(0, 0, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
+    // Center camera on the map (map is smaller than viewport)
+    const mapPxW = MAP_WIDTH * TILE_SIZE
+    const mapPxH = MAP_HEIGHT * TILE_SIZE
+    this.cameras.main.centerOn(mapPxW / 2, mapPxH / 2)
 
     // Render the map
     this.renderMap()
@@ -110,43 +111,54 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // 2. Draw paths — horizontal at y=11, vertical at x=15,16,17
-    for (let x = 6; x < 27; x++) {
-      rt.drawFrame('path-tile', undefined, x * TILE_SIZE, 11 * TILE_SIZE)
+    // 2. Draw paths — compute dynamically from map size and spawn
+    const midX = Math.floor(MAP_WIDTH / 2)
+    const verticalCols = [midX - 1, midX, midX + 1]
+    const horizontalY = Math.max(0, SPAWN_TILE_Y - 1)
+
+    // Horizontal path across the main area (leave 6 tiles margin each side)
+    /* const startX = 6
+    const endX = Math.max(startX + 1, MAP_WIDTH - 7)
+    for (let x = startX; x <= endX; x++) {
+      rt.drawFrame('path-tile', undefined, x * TILE_SIZE, horizontalY * TILE_SIZE)
     }
-    for (let y = 3; y < 21; y++) {
-      rt.drawFrame('path-tile', undefined, 15 * TILE_SIZE, y * TILE_SIZE)
-      rt.drawFrame('path-tile', undefined, 16 * TILE_SIZE, y * TILE_SIZE)
-      rt.drawFrame('path-tile', undefined, 17 * TILE_SIZE, y * TILE_SIZE)
+
+    // Vertical three-column path centered at midX
+    for (let y = 3; y < MAP_HEIGHT - 3; y++) {
+      for (const col of verticalCols) {
+        if (col >= 0 && col < MAP_WIDTH) rt.drawFrame('path-tile', undefined, col * TILE_SIZE, y * TILE_SIZE)
+      }
     }
-    // North gap path
+
+    // North gap path (top 0..2 rows)
     for (let y = 0; y < 3; y++) {
-      rt.drawFrame('path-tile', undefined, 15 * TILE_SIZE, y * TILE_SIZE)
-      rt.drawFrame('path-tile', undefined, 16 * TILE_SIZE, y * TILE_SIZE)
-      rt.drawFrame('path-tile', undefined, 17 * TILE_SIZE, y * TILE_SIZE)
-    }
+      for (const col of verticalCols) {
+        if (col >= 0 && col < MAP_WIDTH) rt.drawFrame('path-tile', undefined, col * TILE_SIZE, y * TILE_SIZE)
+      }
+    } */
 
     // 3. Draw houses (house.png = 6×5 tiles = 96×80px)
-    // Player house: collision cols 9-13, rows 7-10 → sprite at tile (9, 6)
-    rt.drawFrame('house', undefined, 9 * TILE_SIZE, 6 * TILE_SIZE)
-    // Neighbor house: collision cols 19-23, rows 7-10 → sprite at tile (19, 6)
-    rt.drawFrame('house', undefined, 19 * TILE_SIZE, 6 * TILE_SIZE)
+    // Player house: collision cols 9-13, rows 7-10 → sprite at tile (9, 7)
+    rt.drawFrame('house', undefined, 9 * TILE_SIZE, 7 * TILE_SIZE)
+    // Neighbor house: collision cols 19-23, rows 7-10 → sprite at tile (19, 7)
+    rt.drawFrame('house', undefined, 24 * TILE_SIZE, 7 * TILE_SIZE)
 
-    // 4. Lab (same house sprite): collision cols 9-13, rows 14-17 → sprite at tile (9, 13)
-    rt.drawFrame('house', undefined, 9 * TILE_SIZE, 13 * TILE_SIZE)
+    // 4. Lab (same house sprite): collision cols 9-13, rows 14-17 → sprite at tile (9, 14)
+    rt.drawFrame('house', undefined, 9 * TILE_SIZE, 14 * TILE_SIZE)
 
     // 5. Draw mailbox near player house
     rt.drawFrame('mailbox-sprite', undefined, 8 * TILE_SIZE, 11 * TILE_SIZE)
 
-    // 6. Draw border trees (3×3 tree sprites)
-    // Left border: cols 0-5 (2 trees wide), Right border: cols 27-32 (2 trees wide)
-    // Top border: rows 0-2 (1 tree tall), Bottom border: rows 21-23 (1 tree tall)
+    // 6. Draw border trees (3×3 tree sprites) using margins derived from map size
+    const borderWidth = 6 // two 3-tile tree columns on left/right
+    const borderHeight = 3 // top/bottom tree rows
+    const rightStart = MAP_WIDTH - borderWidth
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
-        const isLeftRight = x < 6 || x >= 27
-        const isTopBottom = y < 3 || y >= 21
+        const isLeftRight = x < borderWidth || x >= rightStart
+        const isTopBottom = y < borderHeight || y >= MAP_HEIGHT - borderHeight
         const isBorder = isLeftRight || isTopBottom
-        const isNorthGap = (x >= 15 && x <= 17) && y < 3
+        const isNorthGap = verticalCols.includes(x) && y < borderHeight
         if (isBorder && !isNorthGap && x % 3 === 0 && y % 3 === 0) {
           rt.drawFrame('tree', undefined, x * TILE_SIZE, y * TILE_SIZE)
         }
@@ -159,12 +171,17 @@ export class GameScene extends Phaser.Scene {
 
   private addOverheadTrees(): void {
     // Place tree sprites at higher depth for overhead effect on border
+    const borderWidth = 6
+    const borderHeight = 3
+    const rightStart = MAP_WIDTH - borderWidth
+    const midX = Math.floor(MAP_WIDTH / 2)
+    const verticalCols = [midX - 1, midX, midX + 1]
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
-        const isLeftRight = x < 6 || x >= 27
-        const isTopBottom = y < 3 || y >= 21
+        const isLeftRight = x < borderWidth || x >= rightStart
+        const isTopBottom = y < borderHeight || y >= MAP_HEIGHT - borderHeight
         const isBorder = isLeftRight || isTopBottom
-        const isNorthGap = (x >= 15 && x <= 17) && y < 3
+        const isNorthGap = verticalCols.includes(x) && y < borderHeight
         if (isBorder && !isNorthGap && x % 3 === 0 && y % 3 === 0) {
           const tree = this.add.image(x * TILE_SIZE, y * TILE_SIZE, 'tree')
           tree.setOrigin(0, 0)

@@ -21,9 +21,7 @@ export default function UsernameModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-      <div className="border-4 border-gray-800 bg-white p-6 shadow-lg max-w-sm w-full mx-4"
-        style={{ fontFamily: 'var(--font-pixel), monospace' }}
-      >
+      <div className="border-4 border-gray-800 bg-white p-6 shadow-lg max-w-sm w-full mx-4">
         <h2 className="text-sm mb-4 text-gray-900 text-center">What is your name?</h2>
         <input
           type="text"

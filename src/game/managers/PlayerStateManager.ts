@@ -58,13 +58,15 @@ export class PlayerStateManager {
 
   private addPlayer(state: PlayerState): void {
     if (this.players.has(state.id)) return
-    const remote = new RemotePlayer(this.scene, state)
+    const remote = new RemotePlayer(this.scene, state, this.chatBubbleManager)
     this.players.set(state.id, remote)
   }
 
   private removePlayer(id: string): void {
     const remote = this.players.get(id)
     if (remote) {
+      // remove DOM nametag if present
+      this.chatBubbleManager.removeNametag(id)
       remote.destroy()
       this.players.delete(id)
     }

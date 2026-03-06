@@ -43,7 +43,7 @@ export default function ChatInput() {
   }, [isOpen])
 
   return (
-    <div className="fixed bottom-4 left-4 z-40" style={{ fontFamily: 'var(--font-pixel), monospace' }}>
+    <div className="fixed bottom-4 left-4 z-40">
       {isOpen ? (
         <div className="flex gap-2">
           <input

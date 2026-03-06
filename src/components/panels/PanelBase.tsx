@@ -27,10 +27,7 @@ export default function PanelBase({ title, onClose, children }: PanelBaseProps) 
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
       {/* Panel */}
-      <div
-        className="relative z-10 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto border-4 border-gray-800 bg-white shadow-lg"
-        style={{ fontFamily: 'var(--font-pixel), monospace' }}
-      >
+      <div className="relative z-10 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto border-4 border-gray-800 bg-white shadow-lg">
         {/* Header */}
         <div className="flex items-center justify-between border-b-2 border-gray-800 bg-gray-900 px-4 py-2">
           <h2 className="text-xs text-white">{title}</h2>

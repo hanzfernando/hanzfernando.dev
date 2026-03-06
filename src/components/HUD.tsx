@@ -7,16 +7,10 @@ export default function HUD() {
 
   return (
     <>
-      <div
-        className="fixed top-3 left-3 z-30 bg-black/50 px-2 py-1 text-xs text-white"
-        style={{ fontFamily: 'var(--font-pixel), monospace' }}
-      >
+      <div className="fixed top-3 left-3 z-30 bg-black/50 px-2 py-1 text-xs text-white">
         {username || '...'}
       </div>
-      <div
-        className="fixed top-3 right-3 z-30 bg-black/50 px-2 py-1 text-xs text-white"
-        style={{ fontFamily: 'var(--font-pixel), monospace' }}
-      >
+      <div className="fixed top-3 right-3 z-30 bg-black/50 px-2 py-1 text-xs text-white">
         🟢 Online
       </div>
     </>

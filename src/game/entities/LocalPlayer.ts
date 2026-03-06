@@ -42,7 +42,7 @@ export class LocalPlayer {
       D: scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     }
 
-    scene.cameras.main.startFollow(this.sprite, true, 0.08, 0.08)
+    // scene.cameras.main.startFollow(this.sprite, true, 0.08, 0.08)
   }
 
   setThrottle(throttle: MovementThrottle): void {

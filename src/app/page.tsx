@@ -5,6 +5,7 @@ import { useGameStore } from '@/store/gameStore'
 import UsernameModal from '@/components/UsernameModal'
 import ChatInput from '@/components/ChatInput'
 import HUD from '@/components/HUD'
+import StartScreen from '@/components/StartScreen'
 import AboutPanel from '@/components/panels/AboutPanel'
 import ProjectsPanel from '@/components/panels/ProjectsPanel'
 import ContactPanel from '@/components/panels/ContactPanel'
@@ -15,7 +16,6 @@ const PhaserGame = dynamic(() => import('@/components/PhaserGame'), {
   loading: () => (
     <div
       className="flex h-full w-full items-center justify-center bg-black"
-      style={{ fontFamily: 'var(--font-pixel), monospace' }}
     >
       <p className="text-xs text-white">Loading...</p>
     </div>
@@ -28,6 +28,7 @@ export default function Home() {
   return (
     <div className="w-screen h-screen bg-black relative overflow-hidden">
       <PhaserGame />
+      <StartScreen />
       <UsernameModal />
       <HUD />
       <ChatInput />
