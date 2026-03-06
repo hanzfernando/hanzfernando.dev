@@ -36,4 +36,7 @@ export const GameEvents = {
   CHAT_FOCUS: 'chat-focus',
   SCENE_READY: 'scene-ready',
   USERNAME_SET: 'username-set',
+  // Mobile / on-screen controls
+  MOBILE_MOVE: 'mobile-move',
+  MOBILE_INTERACT: 'mobile-interact',
 } as const

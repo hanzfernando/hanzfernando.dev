@@ -68,6 +68,20 @@ export class GameScene extends Phaser.Scene {
             isLocal: true,
           })
         }
+
+        // Pipe all chat messages into the history store
+        if (msg.type === 'CHAT') {
+          const username = this.playerStateManager.getUsername(msg.payload.id) ?? 'Unknown'
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { useGameStore } = require('@/store/gameStore')
+            useGameStore.getState().addChatMessage({
+              username,
+              message: msg.payload.message,
+              timestamp: Date.now(),
+            })
+          } catch {}
+        }
       },
       () => { this.sendJoin() },
     )

@@ -90,8 +90,8 @@ export class ChatBubbleManager {
     el.style.pointerEvents = 'none'
     el.style.whiteSpace = 'nowrap'
     el.style.padding = '2px 6px'
-    el.style.background = isLocal ? 'rgba(34,197,94,0.85)' : 'rgba(0,0,0,0.6)'
-    el.style.color = '#fff'
+    el.style.background = isLocal ? 'rgba(34,197,94,0.85)' : 'rgba(255, 255, 255, 0.6)'
+    el.style.color = '#000'
     el.style.borderRadius = '4px'
     el.style.fontSize = '12px'
     el.style.transform = 'translate(-50%, -100%)'
@@ -139,7 +139,7 @@ export class ChatBubbleManager {
 
     for (const n of this.nametags.values()) {
       if (!n.target.active) continue
-      const { x, y } = this.toOverlayCoords(n.target.x, n.target.y - 14)
+      const { x, y } = this.toOverlayCoords(n.target.x, n.target.y - 7)
       n.el.style.left = `${Math.round(x)}px`
       n.el.style.top = `${Math.round(y)}px`
     }

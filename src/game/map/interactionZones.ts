@@ -5,29 +5,42 @@ export interface InteractionZone {
   tiles: Array<{ x: number; y: number }>
 }
 
+function rect(x1: number, y1: number, x2: number, y2: number): Array<{ x: number; y: number }> {
+  const tiles: Array<{ x: number; y: number }> = []
+  for (let y = y1; y <= y2; y++) {
+    for (let x = x1; x <= x2; x++) {
+      tiles.push({ x, y })
+    }
+  }
+  return tiles
+}
+
 export const INTERACTION_ZONES: InteractionZone[] = [
   {
     id: 'house-main',
     type: 'about',
-    label: 'Home [E]',
-    tiles: [{ x: 11, y: 10 }],
+    label: 'About Me [E]',
+    // Full collision footprint of main house: cols 9–13, rows 7–10
+    tiles: rect(9, 8, 13, 10),
   },
   {
     id: 'house-neighbor',
     type: 'placeholder',
     label: '??? [E]',
-    tiles: [{ x: 26, y: 10 }],
+    // Full collision footprint of neighbor house: cols 19–23, rows 7–10
+    tiles: rect(25, 8, 29, 10),
   },
   {
     id: 'lab',
     type: 'projects',
-    label: 'Lab [E]',
-    tiles: [{ x: 11, y: 16 }],
+    label: 'Projects [E]',
+    // Full collision footprint of lab: cols 9–13, rows 14–17
+    tiles: rect(9, 15, 13, 17),
   },
   {
     id: 'mailbox',
     type: 'contact',
-    label: 'Mailbox [E]',
+    label: 'Contact [E]',
     tiles: [{ x: 8, y: 11 }],
   },
   {
@@ -42,9 +55,7 @@ export const INTERACTION_ZONES: InteractionZone[] = [
       { x: 18, y: 1 },
       { x: 19, y: 1 },
       { x: 20, y: 1 },
-      { x: 18, y: 2 },
-      { x: 19, y: 2 },
-      { x: 20, y: 2 },
+      
     ],
   },
 ]

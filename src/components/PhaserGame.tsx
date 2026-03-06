@@ -27,7 +27,7 @@ export default function PhaserGame() {
         antialias: false,
         roundPixels: true,
         parent: containerRef.current,
-        backgroundColor: '#1a472a',
+        backgroundColor: '#000000',
         physics: { default: 'arcade', arcade: { debug: false } },
         scene: [BootScene, GameScene, UIScene],
         scale: {
@@ -60,6 +60,6 @@ export default function PhaserGame() {
   }, [])
 
   return (
-    <div ref={containerRef} className="w-full h-full" />
+    <div ref={containerRef} className="flex w-full h-full justify-center items-center" />
   )
 }

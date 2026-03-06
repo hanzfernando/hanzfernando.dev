@@ -8,6 +8,7 @@ export class PlayerStateManager {
   private players = new Map<string, RemotePlayer>()
   private localId: string | null = null
   private chatBubbleManager: ChatBubbleManager
+  private usernameMap = new Map<string, string>()
 
   constructor(scene: Phaser.Scene, chatBubbleManager: ChatBubbleManager) {
     this.scene = scene
@@ -18,11 +19,16 @@ export class PlayerStateManager {
     this.localId = id
   }
 
+  getUsername(id: string): string | undefined {
+    return this.usernameMap.get(id)
+  }
+
   handleServerMessage(msg: ServerMessage): void {
     switch (msg.type) {
       case 'ROOM_STATE': {
         this.localId = msg.payload.yourId
         for (const p of msg.payload.players) {
+          this.usernameMap.set(p.id, p.username)
           if (p.id !== this.localId) {
             this.addPlayer(p)
           }
@@ -30,6 +36,7 @@ export class PlayerStateManager {
         break
       }
       case 'PLAYER_JOIN': {
+        this.usernameMap.set(msg.payload.id, msg.payload.username)
         if (msg.payload.id !== this.localId) {
           this.addPlayer(msg.payload)
         }

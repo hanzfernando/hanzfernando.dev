@@ -6,23 +6,8 @@ import { useGameStore } from '@/store/gameStore'
 export default function ChatInput() {
   const [isOpen, setIsOpen] = useState(false)
   const [value, setValue] = useState('')
-  const [canvasLeft, setCanvasLeft] = useState(16)
   const inputRef = useRef<HTMLInputElement>(null)
   const activePanel = useGameStore((s) => s.activePanel)
-
-  // Track canvas left offset so the chat sits inside the game canvas, not the black bars
-  useEffect(() => {
-    function measure() {
-      const canvas = document.querySelector('canvas')
-      if (canvas) {
-        const rect = canvas.getBoundingClientRect()
-        setCanvasLeft(rect.left + 12)
-      }
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [])
 
   // Notify Phaser when chat input is open/closed so movement is blocked
   const emitFocus = useCallback(async (open: boolean) => {
@@ -70,7 +55,7 @@ export default function ChatInput() {
   }, [isOpen])
 
   return (
-    <div className="fixed bottom-3 z-40" style={{ left: canvasLeft }}>
+    <div className="absolute bottom-3 left-3 z-40">
       {isOpen ? (
         <div className="flex gap-2">
           <input
