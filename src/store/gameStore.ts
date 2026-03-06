@@ -23,6 +23,7 @@ interface GameStore {
   advanceToCharacterSelect: () => void
   startPlaying: () => void
   addChatMessage: (msg: ChatMessage) => void
+  resetToTitle: () => void
 }
 
 export const useGameStore = create<GameStore>((set) => ({
@@ -40,4 +41,13 @@ export const useGameStore = create<GameStore>((set) => ({
   startPlaying: () => set({ gamePhase: 'playing' }),
   addChatMessage: (msg) =>
     set((state) => ({ chatMessages: [...state.chatMessages, msg] })),
+  resetToTitle: () =>
+    set({
+      gamePhase: 'title',
+      activePanel: null,
+      username: '',
+      isUsernameSet: false,
+      selectedCharacter: 0,
+      chatMessages: [],
+    }),
 }))

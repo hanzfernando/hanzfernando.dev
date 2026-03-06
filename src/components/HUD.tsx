@@ -5,6 +5,7 @@ import { EventBus, GameEvents } from '@/game/EventBus'
 
 export default function HUD() {
   const username = useGameStore((s) => s.username)
+  const resetToTitle = useGameStore((s) => s.resetToTitle)
 
   const handleMoveStart = (direction: 'up' | 'down' | 'left' | 'right') => {
     EventBus.emit(GameEvents.MOBILE_MOVE, { direction, isDown: true })
@@ -24,8 +25,15 @@ export default function HUD() {
       <div className="absolute top-3 left-3 z-30 bg-black/50 px-2 py-1 text-xs text-white rounded-sm">
         {username || '...'}
       </div>
-      <div className="absolute top-3 right-3 z-30 bg-black/50 px-2 py-1 text-xs text-white rounded-sm">
-        🟢 Online
+      <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
+        <div className="bg-black/50 px-2 py-1 text-xs text-white rounded-sm">🟢 Online</div>
+        <button
+          className="bg-black/50 px-2 py-1 text-xs text-white rounded-sm hover:bg-black/80 transition-colors"
+          onClick={resetToTitle}
+          title="Back to title screen"
+        >
+          ☰ Back to Title Screen
+        </button>
       </div>
 
       <div className="absolute inset-0 z-30 md:hidden pointer-events-none">

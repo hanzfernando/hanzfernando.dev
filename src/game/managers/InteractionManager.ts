@@ -24,14 +24,14 @@ export class InteractionManager {
     this.eKey = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E)
 
     this.hintBg = scene.add.graphics()
-    this.hintBg.setDepth(40)
+    this.hintBg.setDepth(100)
     this.hintBg.setVisible(false)
 
     this.hintText = scene.add.text(0, 0, '', {
       fontSize: '10px',
       color: '#ffffff',
     })
-    this.hintText.setDepth(41)
+    this.hintText.setDepth(101)
     this.hintText.setVisible(false)
 
     // Listen for mobile / on-screen interact button

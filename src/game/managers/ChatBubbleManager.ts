@@ -35,7 +35,7 @@ export class ChatBubbleManager {
       height: '100%',
       pointerEvents: 'none',
       overflow: 'visible',
-      zIndex: '60',
+      zIndex: '500',
     })
     parent.appendChild(overlay)
     this.overlay = overlay
@@ -50,6 +50,7 @@ export class ChatBubbleManager {
     el.style.position = 'absolute'
     el.style.pointerEvents = 'auto'
     el.style.opacity = '0'
+    el.style.fontFamily = "var(--font-press-start), monospace"
     el.style.transition = 'opacity 0.15s'
     el.style.whiteSpace = 'normal'
     el.style.maxWidth = '180px'
@@ -58,7 +59,7 @@ export class ChatBubbleManager {
     el.style.color = '#000'
     el.style.borderRadius = '6px'
     el.style.border = isLocal ? '1.5px solid rgba(34,197,94,0.9)' : '1px solid rgba(0,0,0,0.6)'
-    el.style.fontSize = '13px'
+    el.style.fontSize = '10px'
     el.style.transform = 'translate(-50%, -110%)'
     el.style.textAlign = 'center'
     el.innerText = message
@@ -87,13 +88,14 @@ export class ChatBubbleManager {
     const el = document.createElement('div')
     el.className = 'phaser-nametag ui-text'
     el.style.position = 'absolute'
+    el.style.fontFamily = "var(--font-press-start), monospace"
     el.style.pointerEvents = 'none'
     el.style.whiteSpace = 'nowrap'
     el.style.padding = '2px 6px'
     el.style.background = isLocal ? 'rgba(34,197,94,0.85)' : 'rgba(255, 255, 255, 0.6)'
     el.style.color = '#000'
     el.style.borderRadius = '4px'
-    el.style.fontSize = '12px'
+    el.style.fontSize = '8px'
     el.style.transform = 'translate(-50%, -100%)'
     el.innerText = username
 

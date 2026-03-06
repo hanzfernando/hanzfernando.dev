@@ -48,19 +48,35 @@ export default function StartScreen() {
   // ---------- TITLE PHASE ----------
   if (gamePhase === 'title') {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black select-none">
-        <h1 className="mb-10 text-3xl tracking-wide text-white pixel-font">hanzfernando.dev</h1>
-        <p className="animate-pulse text-sm text-gray-300">Press any key to start</p>
+      <div
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center select-none"
+        style={{
+          backgroundImage: 'url(/start-screen.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/50" />
+        <h1 className="relative mb-10 text-3xl tracking-wide text-white pixel-font drop-shadow-lg">hanzfernando.dev</h1>
+        <p className="relative animate-pulse text-sm text-gray-300">Press any key to start</p>
       </div>
     )
   }
 
   // ---------- CHARACTER SELECT + NAME ENTRY PHASE ----------
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 select-none">
-      <h2 className="mb-6 text-xl text-white">Choose your character</h2>
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center select-none"
+      style={{
+        backgroundImage: 'url(/start-screen.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="absolute inset-0 bg-black/70" />
+      <h2 className="relative mb-6 text-xl text-white pixel-font">Choose your character</h2>
 
-      <div className="mb-8 flex gap-6">
+      <div className="relative mb-8 flex gap-6">
         {Array.from({ length: CHAR_COUNT }, (_, i) => (
           <button
             key={i}
@@ -88,7 +104,7 @@ export default function StartScreen() {
 
       <input
         ref={inputRef}
-        className="mb-4 w-64 rounded border border-gray-600 bg-gray-900 px-3 py-2 text-center text-sm text-white outline-none focus:border-green-400"
+        className="relative mb-4 w-64 rounded border pixel-font border-gray-600 bg-gray-900 px-3 py-2 text-center text-xs text-white outline-none focus:border-green-400"
         placeholder="Enter your name"
         maxLength={16}
         value={name}
@@ -100,7 +116,7 @@ export default function StartScreen() {
       />
 
       <button
-        className="rounded bg-green-600 px-6 py-2 text-sm text-white transition-colors hover:bg-green-500 disabled:opacity-40"
+        className="relative rounded bg-green-600 px-6 py-2 text-sm text-white transition-colors hover:bg-green-500 disabled:opacity-40"
         disabled={!name.trim()}
         onClick={handleStart}
       >
