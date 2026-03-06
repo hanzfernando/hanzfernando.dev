@@ -41,7 +41,7 @@ export class ChatBubbleManager {
     this.overlay = overlay
   }
 
-  show({ id, sprite, message }: { id: string; sprite: Phaser.GameObjects.Sprite; message: string }): void {
+  show({ id, sprite, message, isLocal }: { id: string; sprite: Phaser.GameObjects.Sprite; message: string; isLocal?: boolean }): void {
     // Dismiss existing
     this.dismiss(id)
 
@@ -54,10 +54,10 @@ export class ChatBubbleManager {
     el.style.whiteSpace = 'normal'
     el.style.maxWidth = '180px'
     el.style.padding = '6px 8px'
-    el.style.background = 'rgba(255,255,255,0.95)'
+    el.style.background = isLocal ? 'rgba(220,255,230,0.97)' : 'rgba(255,255,255,0.95)'
     el.style.color = '#000'
     el.style.borderRadius = '6px'
-    el.style.border = '1px solid rgba(0,0,0,0.6)'
+    el.style.border = isLocal ? '1.5px solid rgba(34,197,94,0.9)' : '1px solid rgba(0,0,0,0.6)'
     el.style.fontSize = '13px'
     el.style.transform = 'translate(-50%, -110%)'
     el.style.textAlign = 'center'
@@ -80,7 +80,7 @@ export class ChatBubbleManager {
     this.bubbles.set(id, { id, el, target: sprite, timer })
   }
 
-  createNametag(id: string, sprite: Phaser.GameObjects.Sprite, username: string): void {
+  createNametag(id: string, sprite: Phaser.GameObjects.Sprite, username: string, isLocal?: boolean): void {
     // Remove existing
     this.removeNametag(id)
 
@@ -90,7 +90,7 @@ export class ChatBubbleManager {
     el.style.pointerEvents = 'none'
     el.style.whiteSpace = 'nowrap'
     el.style.padding = '2px 6px'
-    el.style.background = 'rgba(0,0,0,0.6)'
+    el.style.background = isLocal ? 'rgba(34,197,94,0.85)' : 'rgba(0,0,0,0.6)'
     el.style.color = '#fff'
     el.style.borderRadius = '4px'
     el.style.fontSize = '12px'

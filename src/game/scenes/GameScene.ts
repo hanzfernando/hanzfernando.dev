@@ -51,22 +51,26 @@ export class GameScene extends Phaser.Scene {
     this.playerStateManager = new PlayerStateManager(this, this.chatBubbleManager)
 
     // WebSocket connection
-    this.wsManager.connect((msg: ServerMessage) => {
-      this.playerStateManager.handleServerMessage(msg)
+    this.wsManager.connect(
+      (msg: ServerMessage) => {
+        this.playerStateManager.handleServerMessage(msg)
 
-      if (msg.type === 'ROOM_STATE') {
-        this.playerStateManager.setLocalId(msg.payload.yourId)
-      }
+        if (msg.type === 'ROOM_STATE') {
+          this.playerStateManager.setLocalId(msg.payload.yourId)
+        }
 
-      // Handle chat for local player too
-      if (msg.type === 'CHAT' && msg.payload.id === this.playerStateManager['localId']) {
-        this.chatBubbleManager.show({
-          id: 'local',
-          sprite: this.localPlayer.sprite,
-          message: msg.payload.message,
-        })
-      }
-    })
+        // Handle chat for local player too
+        if (msg.type === 'CHAT' && msg.payload.id === this.playerStateManager['localId']) {
+          this.chatBubbleManager.show({
+            id: 'local',
+            sprite: this.localPlayer.sprite,
+            message: msg.payload.message,
+            isLocal: true,
+          })
+        }
+      },
+      () => { this.sendJoin() },
+    )
 
     // EventBus listeners
     EventBus.on(GameEvents.CHAT_SENT, (...args: unknown[]) => {
@@ -105,6 +109,7 @@ export class GameScene extends Phaser.Scene {
       if (username) {
         this.wsManager.send({ type: 'JOIN', payload: { username, character } })
         this.joined = true
+        this.chatBubbleManager.createNametag('local', this.localPlayer.sprite, username, true)
       }
     } catch {
       // Store not available yet
