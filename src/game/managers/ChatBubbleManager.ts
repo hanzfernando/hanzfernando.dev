@@ -63,9 +63,14 @@ export class ChatBubbleManager {
     el.style.textAlign = 'center'
     el.innerText = message
 
+    // Set initial position synchronously before appending so it never flashes at (0,0)
+    const { x, y } = this.toOverlayCoords(sprite.x, sprite.y - 24)
+    el.style.left = `${Math.round(x)}px`
+    el.style.top = `${Math.round(y)}px`
+
     this.overlay.appendChild(el)
 
-    // Fade in
+    // Fade in after position is set
     requestAnimationFrame(() => (el.style.opacity = '1'))
 
     const timer = this.scene.time.delayedCall(4000, () => {
@@ -92,6 +97,11 @@ export class ChatBubbleManager {
     el.style.transform = 'translate(-50%, -100%)'
     el.innerText = username
 
+    // Set initial position synchronously
+    const { x, y } = this.toOverlayCoords(sprite.x, sprite.y - 14)
+    el.style.left = `${Math.round(x)}px`
+    el.style.top = `${Math.round(y)}px`
+
     this.overlay.appendChild(el)
     this.nametags.set(id, { id, el, target: sprite })
   }
@@ -103,40 +113,35 @@ export class ChatBubbleManager {
     this.nametags.delete(id)
   }
 
-  update(): void {
+  /** Convert Phaser world coords to overlay CSS coords. */
+  private toOverlayCoords(worldX: number, worldY: number): { x: number; y: number } {
     const canvas = this.scene.game.canvas
     const canvasRect = canvas.getBoundingClientRect()
     const overlayRect = this.overlay.getBoundingClientRect()
     const cam = this.scene.cameras.main
-
-    // Scale factor: Phaser renders at internal resolution (e.g. 640×480) but
-    // the canvas is displayed at a larger CSS size via FIT mode. Every canvas
-    // pixel must be multiplied by this factor to get an overlay CSS pixel.
     const scaleX = canvasRect.width / canvas.width
     const scaleY = canvasRect.height / canvas.height
-
-    // Offset between the canvas top-left and the overlay top-left in CSS pixels.
     const offsetX = canvasRect.left - overlayRect.left
     const offsetY = canvasRect.top - overlayRect.top
+    return {
+      x: (worldX - cam.worldView.x) * cam.zoom * scaleX + offsetX,
+      y: (worldY - cam.worldView.y) * cam.zoom * scaleY + offsetY,
+    }
+  }
 
+  update(): void {
     for (const b of this.bubbles.values()) {
       if (!b.target.active) continue
-      const worldX = b.target.x
-      const worldY = b.target.y - 24
-      const screenX = (worldX - cam.worldView.x) * cam.zoom * scaleX + offsetX
-      const screenY = (worldY - cam.worldView.y) * cam.zoom * scaleY + offsetY
-      b.el.style.left = `${Math.round(screenX)}px`
-      b.el.style.top = `${Math.round(screenY)}px`
+      const { x, y } = this.toOverlayCoords(b.target.x, b.target.y - 24)
+      b.el.style.left = `${Math.round(x)}px`
+      b.el.style.top = `${Math.round(y)}px`
     }
 
     for (const n of this.nametags.values()) {
       if (!n.target.active) continue
-      const worldX = n.target.x
-      const worldY = n.target.y - 14
-      const screenX = (worldX - cam.worldView.x) * cam.zoom * scaleX + offsetX
-      const screenY = (worldY - cam.worldView.y) * cam.zoom * scaleY + offsetY
-      n.el.style.left = `${Math.round(screenX)}px`
-      n.el.style.top = `${Math.round(screenY)}px`
+      const { x, y } = this.toOverlayCoords(n.target.x, n.target.y - 14)
+      n.el.style.left = `${Math.round(x)}px`
+      n.el.style.top = `${Math.round(y)}px`
     }
   }
 

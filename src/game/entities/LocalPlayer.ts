@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { TILE_SIZE, MOVE_DURATION_MS } from '@/game/constants'
+import { TILE_SIZE, MOVE_DURATION_MS, charSheetKey } from '@/game/constants'
 import type { WebSocketManager } from '@/game/managers/WebSocketManager'
 import type { MovementThrottle } from '@/game/managers/MovementThrottle'
 
@@ -13,6 +13,8 @@ export class LocalPlayer {
   private _tileY: number
   private _direction: 'up' | 'down' | 'left' | 'right' = 'down'
   private _isMoving = false
+  private inputEnabled = true
+  private sheetKey: string
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys
   private wasd: {
@@ -22,16 +24,18 @@ export class LocalPlayer {
     D: Phaser.Input.Keyboard.Key
   }
 
-  constructor(scene: Phaser.Scene, ws: WebSocketManager, tileX: number, tileY: number) {
+  constructor(scene: Phaser.Scene, ws: WebSocketManager, tileX: number, tileY: number, characterIndex: number = 0) {
     this.scene = scene
     this.ws = ws
     this._tileX = tileX
     this._tileY = tileY
+    this.sheetKey = charSheetKey(characterIndex)
 
     const px = tileX * TILE_SIZE + TILE_SIZE / 2
     const py = tileY * TILE_SIZE + TILE_SIZE / 2
 
-    this.sprite = scene.add.sprite(px, py, 'player-local')
+    this.sprite = scene.add.sprite(px, py, this.sheetKey, 0)
+    this.sprite.play(`${this.sheetKey}-idle-down`)
     this.sprite.setDepth(py)
 
     this.cursors = scene.input.keyboard!.createCursorKeys()
@@ -49,10 +53,18 @@ export class LocalPlayer {
     this.throttle = throttle
   }
 
+  setInputEnabled(enabled: boolean): void {
+    this.inputEnabled = enabled
+    if (!enabled) {
+      // Stop any active movement animation immediately
+      this.sprite.play(`${this.sheetKey}-idle-${this._direction}`, true)
+    }
+  }
+
   update(collisionMap: number[][]): void {
     this.sprite.setDepth(this.sprite.y)
 
-    if (this._isMoving) {
+    if (!this.inputEnabled || this._isMoving) {
       this.throttle?.tick()
       return
     }
@@ -80,7 +92,10 @@ export class LocalPlayer {
       return
     }
 
-    this._direction = newDir
+    // Update direction and play appropriate animation
+    if (newDir !== this._direction) {
+      this._direction = newDir
+    }
 
     const nextX = this._tileX + dx
     const nextY = this._tileY + dy
@@ -91,7 +106,8 @@ export class LocalPlayer {
       nextY < 0 || nextY >= collisionMap.length ||
       collisionMap[nextY][nextX] === 1
     ) {
-      // Blocked: update direction only, emit facing change
+      // Blocked: update direction only, show idle in that direction
+      this.sprite.play(`${this.sheetKey}-idle-${this._direction}`, true)
       this.throttle?.push({
         x: this._tileX,
         y: this._tileY,
@@ -107,6 +123,9 @@ export class LocalPlayer {
     this._tileX = nextX
     this._tileY = nextY
 
+    // Play walk animation for current direction
+    this.sprite.play(`${this.sheetKey}-walk-${this._direction}`, true)
+
     const targetPx = nextX * TILE_SIZE + TILE_SIZE / 2
     const targetPy = nextY * TILE_SIZE + TILE_SIZE / 2
 
@@ -118,6 +137,8 @@ export class LocalPlayer {
       ease: 'Linear',
       onComplete: () => {
         this._isMoving = false
+        // Return to idle when movement ends
+        this.sprite.play(`${this.sheetKey}-idle-${this._direction}`, true)
         this.throttle?.push({
           x: this._tileX,
           y: this._tileY,

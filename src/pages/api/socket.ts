@@ -61,7 +61,11 @@ function handleConnection(ws: WebSocket): void {
             ? msg.payload.username.replace(/[^a-zA-Z0-9 ]/g, '').slice(0, 16)
             : 'Player'
         if (!username.trim()) return
-        roomManager.join(socketId, ws, username)
+        const character =
+          typeof msg.payload?.character === 'number'
+            ? Math.max(0, Math.min(3, Math.floor(msg.payload.character)))
+            : 0
+        roomManager.join(socketId, ws, username, character)
         joined = true
         break
       }

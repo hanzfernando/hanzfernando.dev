@@ -14,7 +14,7 @@ export class RoomManager {
     return this.players.has(socketId)
   }
 
-  join(socketId: string, ws: WebSocket, username: string): void {
+  join(socketId: string, ws: WebSocket, username: string, character = 0): void {
     const player: PlayerState = {
       id: socketId,
       username: username.slice(0, 16),
@@ -22,6 +22,7 @@ export class RoomManager {
       y: 12,
       direction: 'down',
       isMoving: false,
+      character: Math.max(0, Math.min(3, Math.floor(character))),
     }
 
     this.players.set(socketId, player)

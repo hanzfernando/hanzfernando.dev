@@ -5,7 +5,7 @@ export class BootScene extends Phaser.Scene {
     super({ key: 'BootScene' })
   }
 
-  preload(): void {
+  async preload(): Promise<void> {
     // Loading bar
     const { width, height } = this.cameras.main
     const barWidth = 200
@@ -29,20 +29,63 @@ export class BootScene extends Phaser.Scene {
       progressBar.destroy()
     })
 
-    // Load sprite assets
+    // Load static assets
     this.load.image('grass', '/pixel/grass.png')
     this.load.image('tree', '/pixel/tree.png')
     this.load.image('house', '/pixel/house.png')
+
+    // Helper to measure an image before Phaser loads it
+    const getImageSize = (url: string): Promise<{ w: number; h: number }> =>
+      new Promise((resolve) => {
+        const img = new Image()
+        img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight })
+        img.onerror = () => resolve({ w: 64, h: 88 }) // fallback: 16×22 per frame at 4×4
+        img.src = url
+      })
+
+    // Load all 4 character spritesheets, auto-sizing frames from image dimensions / 4×4
+    for (let i = 1; i <= 4; i++) {
+      const url = `/pixel/char-${i}-sprite.png`
+      const { w, h } = await getImageSize(url)
+
+      this.load.spritesheet(`char-${i}-sheet`, url, {
+        frameWidth: Math.floor(w / 4),
+        frameHeight: Math.floor(h / 4),
+      })
+    }
   }
 
   create(): void {
     // Generate programmatic textures
     this.generatePathTexture()
-    this.generatePlayerLocal()
     this.generatePlayerRemote()
     this.generateMailbox()
     this.generateLabWall()
     this.generateLabRoof()
+
+    // Create walk/idle animations for each character sheet
+    const dirs = ['down', 'left', 'right', 'up'] as const
+    const cols = 4
+    for (let charIdx = 1; charIdx <= 4; charIdx++) {
+      const sheetKey = `char-${charIdx}-sheet`
+      for (let row = 0; row < dirs.length; row++) {
+        const startFrame = row * cols
+        this.anims.create({
+          key: `${sheetKey}-walk-${dirs[row]}`,
+          frames: this.anims.generateFrameNumbers(sheetKey, {
+            start: startFrame,
+            end: startFrame + cols - 1,
+          }),
+          frameRate: 8,
+          repeat: -1,
+        })
+        this.anims.create({
+          key: `${sheetKey}-idle-${dirs[row]}`,
+          frames: [{ key: sheetKey, frame: startFrame }],
+          frameRate: 1,
+        })
+      }
+    }
 
     this.scene.start('GameScene')
   }
@@ -52,19 +95,6 @@ export class BootScene extends Phaser.Scene {
     g.fillStyle(0xc4a265, 1)
     g.fillRect(0, 0, 16, 16)
     g.generateTexture('path-tile', 16, 16)
-    g.destroy()
-  }
-
-  private generatePlayerLocal(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0x44aa44, 1)
-    g.fillRect(1, 1, 14, 14)
-    g.lineStyle(1, 0x226622, 1)
-    g.strokeRect(1, 1, 14, 14)
-    // Direction indicator (dot at bottom for "down")
-    g.fillStyle(0xffffff, 1)
-    g.fillCircle(8, 12, 2)
-    g.generateTexture('player-local', 16, 16)
     g.destroy()
   }
 
@@ -82,13 +112,10 @@ export class BootScene extends Phaser.Scene {
 
   private generateMailbox(): void {
     const g = this.add.graphics()
-    // Post
     g.fillStyle(0x888888, 1)
     g.fillRect(6, 8, 4, 8)
-    // Box
     g.fillStyle(0x8b4513, 1)
     g.fillRect(2, 2, 12, 8)
-    // Flag
     g.fillStyle(0xff3333, 1)
     g.fillRect(13, 3, 2, 4)
     g.generateTexture('mailbox-sprite', 16, 16)

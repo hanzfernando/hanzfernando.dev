@@ -5,10 +5,11 @@ export interface PlayerState {
   y: number
   direction: 'up' | 'down' | 'left' | 'right'
   isMoving: boolean
+  character: number
 }
 
 export type ClientMessage =
-  | { type: 'JOIN'; payload: { username: string } }
+  | { type: 'JOIN'; payload: { username: string; character: number } }
   | { type: 'PLAYER_MOVE'; payload: Pick<PlayerState, 'x' | 'y' | 'direction' | 'isMoving'> }
   | { type: 'CHAT'; payload: { message: string } }
   | { type: 'PING'; payload: { t: number } }

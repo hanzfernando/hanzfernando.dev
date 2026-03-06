@@ -32,9 +32,15 @@ export class GameScene extends Phaser.Scene {
     // Render the map
     this.renderMap()
 
-    // Create local player
+    // Create local player with selected character
     this.wsManager = new WebSocketManager()
-    this.localPlayer = new LocalPlayer(this, this.wsManager, SPAWN_TILE_X, SPAWN_TILE_Y)
+    let characterIndex = 0
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { useGameStore } = require('@/store/gameStore')
+      characterIndex = useGameStore.getState().selectedCharacter
+    } catch {}
+    this.localPlayer = new LocalPlayer(this, this.wsManager, SPAWN_TILE_X, SPAWN_TILE_Y, characterIndex)
 
     // Create managers
     this.movementThrottle = new MovementThrottle(this.wsManager)
@@ -68,6 +74,11 @@ export class GameScene extends Phaser.Scene {
       this.wsManager.send({ type: 'CHAT', payload: { message } })
     })
 
+    EventBus.on(GameEvents.CHAT_FOCUS, (...args: unknown[]) => {
+      const isFocused = args[0] as boolean
+      this.localPlayer.setInputEnabled(!isFocused)
+    })
+
     EventBus.on(GameEvents.USERNAME_SET, () => {
       this.sendJoin()
     })
@@ -88,9 +99,11 @@ export class GameScene extends Phaser.Scene {
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { useGameStore } = require('@/store/gameStore')
-      const username = useGameStore.getState().username
+      const storeState = useGameStore.getState()
+      const username = storeState.username
+      const character: number = storeState.selectedCharacter ?? 0
       if (username) {
-        this.wsManager.send({ type: 'JOIN', payload: { username } })
+        this.wsManager.send({ type: 'JOIN', payload: { username, character } })
         this.joined = true
       }
     } catch {
@@ -111,31 +124,9 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // 2. Draw paths — compute dynamically from map size and spawn
+    // 2. Compute layout helpers for border/trees
     const midX = Math.floor(MAP_WIDTH / 2)
     const verticalCols = [midX - 1, midX, midX + 1]
-    const horizontalY = Math.max(0, SPAWN_TILE_Y - 1)
-
-    // Horizontal path across the main area (leave 6 tiles margin each side)
-    /* const startX = 6
-    const endX = Math.max(startX + 1, MAP_WIDTH - 7)
-    for (let x = startX; x <= endX; x++) {
-      rt.drawFrame('path-tile', undefined, x * TILE_SIZE, horizontalY * TILE_SIZE)
-    }
-
-    // Vertical three-column path centered at midX
-    for (let y = 3; y < MAP_HEIGHT - 3; y++) {
-      for (const col of verticalCols) {
-        if (col >= 0 && col < MAP_WIDTH) rt.drawFrame('path-tile', undefined, col * TILE_SIZE, y * TILE_SIZE)
-      }
-    }
-
-    // North gap path (top 0..2 rows)
-    for (let y = 0; y < 3; y++) {
-      for (const col of verticalCols) {
-        if (col >= 0 && col < MAP_WIDTH) rt.drawFrame('path-tile', undefined, col * TILE_SIZE, y * TILE_SIZE)
-      }
-    } */
 
     // 3. Draw houses (house.png = 6×5 tiles = 96×80px)
     // Player house: collision cols 9-13, rows 7-10 → sprite at tile (9, 7)
@@ -205,6 +196,7 @@ export class GameScene extends Phaser.Scene {
 
   shutdown(): void {
     EventBus.off(GameEvents.CHAT_SENT)
+    EventBus.off(GameEvents.CHAT_FOCUS)
     EventBus.off(GameEvents.USERNAME_SET)
     this.wsManager.disconnect()
     this.chatBubbleManager.destroy()

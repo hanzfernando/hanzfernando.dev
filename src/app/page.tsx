@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic'
 import { useGameStore } from '@/store/gameStore'
-import UsernameModal from '@/components/UsernameModal'
 import ChatInput from '@/components/ChatInput'
 import HUD from '@/components/HUD'
 import StartScreen from '@/components/StartScreen'
@@ -23,20 +22,23 @@ const PhaserGame = dynamic(() => import('@/components/PhaserGame'), {
 })
 
 export default function Home() {
-  const { activePanel, closePanel } = useGameStore()
+  const { activePanel, closePanel, gamePhase } = useGameStore()
 
   return (
     <div className="w-screen h-screen bg-black relative overflow-hidden">
-      <PhaserGame />
-      <StartScreen />
-      <UsernameModal />
-      <HUD />
-      <ChatInput />
+      {gamePhase === 'playing' && (
+        <>
+          <PhaserGame />
+          <HUD />
+          <ChatInput />
 
-      {activePanel === 'about' && <AboutPanel onClose={closePanel} />}
-      {activePanel === 'projects' && <ProjectsPanel onClose={closePanel} />}
-      {activePanel === 'contact' && <ContactPanel onClose={closePanel} />}
-      {activePanel === 'career' && <CareerPanel onClose={closePanel} />}
+          {activePanel === 'about' && <AboutPanel onClose={closePanel} />}
+          {activePanel === 'projects' && <ProjectsPanel onClose={closePanel} />}
+          {activePanel === 'contact' && <ContactPanel onClose={closePanel} />}
+          {activePanel === 'career' && <CareerPanel onClose={closePanel} />}
+        </>
+      )}
+      <StartScreen />
     </div>
   )
 }

@@ -33,6 +33,7 @@ export const EventBus = new SimpleEventEmitter()
 export const GameEvents = {
   INTERACTION: 'interaction',
   CHAT_SENT: 'chat-sent',
+  CHAT_FOCUS: 'chat-focus',
   SCENE_READY: 'scene-ready',
   USERNAME_SET: 'username-set',
 } as const
