@@ -57,3 +57,9 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+canvas {
+  width: auto !important;
+  height: 100% !important;
+  display: block;
+}

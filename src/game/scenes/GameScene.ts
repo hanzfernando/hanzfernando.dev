@@ -24,10 +24,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Center camera on the map (map is smaller than viewport)
     const mapPxW = MAP_WIDTH * TILE_SIZE
     const mapPxH = MAP_HEIGHT * TILE_SIZE
-    this.cameras.main.centerOn(mapPxW / 2, mapPxH / 2)
+
+    // Show ~20 tiles across the shorter screen dimension.
+    // This keeps the map larger than the viewport so the camera actually scrolls.
+    const calcZoom = () => {
+      const short = Math.min(this.scale.width, this.scale.height)
+      return short / (20 * TILE_SIZE)
+    }
+
 
     // Render the map
     this.renderMap()
@@ -41,7 +47,18 @@ export class GameScene extends Phaser.Scene {
       characterIndex = useGameStore.getState().selectedCharacter
     } catch {}
     this.localPlayer = new LocalPlayer(this, this.wsManager, SPAWN_TILE_X, SPAWN_TILE_Y, characterIndex)
+    
+    this.cameras.main.setBounds(0, 0, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
+    this.cameras.main.setZoom(calcZoom())
+    // Smooth follow so the camera tracks the player sprite across tiles
+    this.cameras.main.startFollow(this.localPlayer.sprite, true, 0.12, 0.12)
+    // Re-calculate zoom on orientation change / browser resize
+    this.scale.on('resize', () => {
+      this.cameras.main.setZoom(calcZoom())
+    })
 
+    this.physics.world.setBounds(0, 0, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
+    
     // Create managers
     this.movementThrottle = new MovementThrottle(this.wsManager)
     this.localPlayer.setThrottle(this.movementThrottle)

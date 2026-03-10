@@ -57,11 +57,11 @@ export class BootScene extends Phaser.Scene {
 
   create(): void {
     // Generate programmatic textures
-    this.generatePathTexture()
-    this.generatePlayerRemote()
-    this.generateMailbox()
-    this.generateLabWall()
-    this.generateLabRoof()
+    // this.generatePathTexture()
+    // this.generatePlayerRemote()
+    // this.generateMailbox()
+    // this.generateLabWall()
+    // this.generateLabRoof()
 
     // Create walk/idle animations for each character sheet
     const dirs = ['down', 'left', 'right', 'up'] as const
@@ -90,53 +90,53 @@ export class BootScene extends Phaser.Scene {
     this.scene.start('GameScene')
   }
 
-  private generatePathTexture(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0xc4a265, 1)
-    g.fillRect(0, 0, 16, 16)
-    g.generateTexture('path-tile', 16, 16)
-    g.destroy()
-  }
+  // private generatePathTexture(): void {
+  //   const g = this.add.graphics()
+  //   g.fillStyle(0xc4a265, 1)
+  //   g.fillRect(0, 0, 16, 16)
+  //   g.generateTexture('path-tile', 16, 16)
+  //   g.destroy()
+  // }
 
-  private generatePlayerRemote(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0x4466aa, 1)
-    g.fillRect(1, 1, 14, 14)
-    g.lineStyle(1, 0x223366, 1)
-    g.strokeRect(1, 1, 14, 14)
-    g.fillStyle(0xffffff, 1)
-    g.fillCircle(8, 12, 2)
-    g.generateTexture('player-remote', 16, 16)
-    g.destroy()
-  }
+  // private generatePlayerRemote(): void {
+  //   const g = this.add.graphics()
+  //   g.fillStyle(0x4466aa, 1)
+  //   g.fillRect(1, 1, 14, 14)
+  //   g.lineStyle(1, 0x223366, 1)
+  //   g.strokeRect(1, 1, 14, 14)
+  //   g.fillStyle(0xffffff, 1)
+  //   g.fillCircle(8, 12, 2)
+  //   g.generateTexture('player-remote', 16, 16)
+  //   g.destroy()
+  // }
 
-  private generateMailbox(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0x888888, 1)
-    g.fillRect(6, 8, 4, 8)
-    g.fillStyle(0x8b4513, 1)
-    g.fillRect(2, 2, 12, 8)
-    g.fillStyle(0xff3333, 1)
-    g.fillRect(13, 3, 2, 4)
-    g.generateTexture('mailbox-sprite', 16, 16)
-    g.destroy()
-  }
+  // private generateMailbox(): void {
+  //   const g = this.add.graphics()
+  //   g.fillStyle(0x888888, 1)
+  //   g.fillRect(6, 8, 4, 8)
+  //   g.fillStyle(0x8b4513, 1)
+  //   g.fillRect(2, 2, 12, 8)
+  //   g.fillStyle(0xff3333, 1)
+  //   g.fillRect(13, 3, 2, 4)
+  //   g.generateTexture('mailbox-sprite', 16, 16)
+  //   g.destroy()
+  // }
 
-  private generateLabWall(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0x7090a0, 1)
-    g.fillRect(0, 0, 16, 16)
-    g.lineStyle(1, 0x506070, 0.5)
-    g.strokeRect(0, 0, 16, 16)
-    g.generateTexture('lab-wall', 16, 16)
-    g.destroy()
-  }
+  // private generateLabWall(): void {
+  //   const g = this.add.graphics()
+  //   g.fillStyle(0x7090a0, 1)
+  //   g.fillRect(0, 0, 16, 16)
+  //   g.lineStyle(1, 0x506070, 0.5)
+  //   g.strokeRect(0, 0, 16, 16)
+  //   g.generateTexture('lab-wall', 16, 16)
+  //   g.destroy()
+  // }
 
-  private generateLabRoof(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0x405060, 1)
-    g.fillRect(0, 0, 16, 16)
-    g.generateTexture('lab-roof', 16, 16)
-    g.destroy()
-  }
+  // private generateLabRoof(): void {
+  //   const g = this.add.graphics()
+  //   g.fillStyle(0x405060, 1)
+  //   g.fillRect(0, 0, 16, 16)
+  //   g.generateTexture('lab-roof', 16, 16)
+  //   g.destroy()
+  // }
 }

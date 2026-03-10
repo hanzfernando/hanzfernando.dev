@@ -23,23 +23,14 @@ const PhaserGame = dynamic(() => import('@/components/PhaserGame'), {
 
 export default function Home() {
   const { activePanel, closePanel, gamePhase } = useGameStore()
-
   return (
-    <div className="w-screen h-screen bg-black overflow-hidden flex items-center justify-center">
-      {/* 4:3 game viewport — all overlays are positioned relative to this */}
-      <div
-        className="relative"
-        style={{
-          width: 'min(100vw, calc(100vh * 4 / 3))',
-          height: 'min(100vh, calc(100vw * 3 / 4))',
-        }}
-      >
+    <div className="w-full max-w-7xl mx-auto h-screen bg-black overflow-hidden relative">
+      <div className="absolute inset-0">
         {gamePhase === 'playing' && (
           <>
             <PhaserGame />
             <HUD />
             <ChatPanel />
-
             {activePanel === 'about' && <AboutPanel onClose={closePanel} />}
             {activePanel === 'projects' && <ProjectsPanel onClose={closePanel} />}
             {activePanel === 'contact' && <ContactPanel onClose={closePanel} />}

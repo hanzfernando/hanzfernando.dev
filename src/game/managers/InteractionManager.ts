@@ -58,6 +58,9 @@ export class InteractionManager {
 
       if (clickedZone && clickedZone.type !== 'placeholder') {
         EventBus.emit(GameEvents.INTERACTION, { type: clickedZone.type })
+      } else {
+        // No interaction zone — tap-to-move the player to that tile
+        EventBus.emit(GameEvents.TOUCH_MOVE_TO, { tileX, tileY })
       }
     })
   }
