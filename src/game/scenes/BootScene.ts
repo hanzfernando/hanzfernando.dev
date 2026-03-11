@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { MOVE_DURATION_MS } from '../constants'
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -31,15 +32,17 @@ export class BootScene extends Phaser.Scene {
 
     // Load static assets
     this.load.image('grass', '/pixel/grass.png')
-    this.load.image('tree', '/pixel/tree.png')
-    this.load.image('house', '/pixel/house.png')
+    this.load.image('tree', '/pixel/pine_tree.png')
+    this.load.image('house', '/pixel/house-1.png')
+    this.load.image('greenhouse', '/pixel/greenhouse.png')
+    this.load.image('flower_bush', '/pixel/flower_bush-2.png')
 
     // Helper to measure an image before Phaser loads it
     const getImageSize = (url: string): Promise<{ w: number; h: number }> =>
       new Promise((resolve) => {
         const img = new Image()
         img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight })
-        img.onerror = () => resolve({ w: 64, h: 88 }) // fallback: 16×22 per frame at 4×4
+        img.onerror = () => resolve({ w: 64, h: 96 }) // fallback: 16×24 per frame at 4×4
         img.src = url
       })
 
@@ -76,7 +79,7 @@ export class BootScene extends Phaser.Scene {
             start: startFrame,
             end: startFrame + cols - 1,
           }),
-          frameRate: 8,
+          frameRate: Math.round(1000 / MOVE_DURATION_MS * cols),  // was hardcoded 8
           repeat: -1,
         })
         this.anims.create({

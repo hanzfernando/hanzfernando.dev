@@ -35,7 +35,7 @@ export class ChatBubbleManager {
       height: '100%',
       pointerEvents: 'none',
       overflow: 'visible',
-      zIndex: '500',
+      zIndex: '1000',
     })
     parent.appendChild(overlay)
     this.overlay = overlay

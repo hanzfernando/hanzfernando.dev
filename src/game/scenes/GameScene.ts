@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { TILE_SIZE, MAP_WIDTH, MAP_HEIGHT, SPAWN_TILE_X, SPAWN_TILE_Y } from '@/game/constants'
 import { COLLISION_MAP } from '@/game/map/collisionData'
+import { TERRAIN, TERRAIN_MAP } from '@/game/map/terrainData'
 import { EventBus, GameEvents } from '@/game/EventBus'
 import { WebSocketManager } from '@/game/managers/WebSocketManager'
 import { MovementThrottle } from '@/game/managers/MovementThrottle'
@@ -9,6 +10,7 @@ import { InteractionManager } from '@/game/managers/InteractionManager'
 import { PlayerStateManager } from '@/game/managers/PlayerStateManager'
 import { LocalPlayer } from '@/game/entities/LocalPlayer'
 import type { ServerMessage } from '@/types/ws-protocol'
+import { DECOR, DECOR_MAP } from '../map/decorData'
 
 export class GameScene extends Phaser.Scene {
   private localPlayer!: LocalPlayer
@@ -24,9 +26,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    const mapPxW = MAP_WIDTH * TILE_SIZE
-    const mapPxH = MAP_HEIGHT * TILE_SIZE
-
     // Show ~20 tiles across the shorter screen dimension.
     // This keeps the map larger than the viewport so the camera actually scrolls.
     const calcZoom = () => {
@@ -148,75 +147,121 @@ export class GameScene extends Phaser.Scene {
   }
 
   private renderMap(): void {
-    // Render texture to bake static map
     const rt = this.add.renderTexture(0, 0, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
     rt.setOrigin(0, 0)
     rt.setDepth(0)
 
-    // 1. Fill with grass
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         rt.drawFrame('grass', undefined, x * TILE_SIZE, y * TILE_SIZE)
       }
     }
 
-    // 2. Compute layout helpers for border/trees
-    const midX = Math.floor(MAP_WIDTH / 2)
-    const verticalCols = [midX - 1, midX, midX + 1]
-
-    // 3. Draw houses (house.png = 6×5 tiles = 96×80px)
-    // Player house: collision cols 9-13, rows 7-10 → sprite at tile (9, 7)
-    rt.drawFrame('house', undefined, 9 * TILE_SIZE, 7 * TILE_SIZE)
-    // Neighbor house: collision cols 19-23, rows 7-10 → sprite at tile (19, 7)
-    rt.drawFrame('house', undefined, 24 * TILE_SIZE, 7 * TILE_SIZE)
-
-    // 4. Lab (same house sprite): collision cols 9-13, rows 14-17 → sprite at tile (9, 14)
-    rt.drawFrame('house', undefined, 9 * TILE_SIZE, 14 * TILE_SIZE)
-
-    // 5. Draw mailbox near player house
-    rt.drawFrame('mailbox-sprite', undefined, 8 * TILE_SIZE, 11 * TILE_SIZE)
-
-    // 6. Draw border trees (3×3 tree sprites) using margins derived from map size
-    const borderWidth = 6 // two 3-tile tree columns on left/right
-    const borderHeight = 3 // top/bottom tree rows
-    const rightStart = MAP_WIDTH - borderWidth
+    // Houses and mailboxes as real images (rt.draw is unreliable for these)
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
-        const isLeftRight = x < borderWidth || x >= rightStart
-        const isTopBottom = y < borderHeight || y >= MAP_HEIGHT - borderHeight
-        const isBorder = isLeftRight || isTopBottom
-        const isNorthGap = verticalCols.includes(x) && y < borderHeight
-        if (isBorder && !isNorthGap && x % 3 === 0 && y % 3 === 0) {
-          rt.drawFrame('tree', undefined, x * TILE_SIZE, y * TILE_SIZE)
+        const tile = TERRAIN_MAP[y][x]
+        if (tile === TERRAIN.HOUSE) {
+          const texture = this.textures.get('house').getSourceImage() as HTMLImageElement
+          const houseW = texture.width
+          const houseH = texture.height
+          const splitY = Math.floor(houseH * 0.5)
+          // Anchor is bottom-left: (x, y) tile is the bottom-left corner of the sprite
+          const anchorPx = x * TILE_SIZE
+          const anchorPy = (y + 1) * TILE_SIZE // bottom edge of anchor tile
+
+          // Full house — origin at bottom-left
+          const full = this.add.image(anchorPx, anchorPy, 'house')
+          full.setOrigin(0, 1)
+          full.setDepth(anchorPy - TILE_SIZE * 2)
+
+          // Top portion — draw from computed sprite top
+          const spriteTopY = anchorPy - houseH
+          const top = this.add.renderTexture(anchorPx, spriteTopY, houseW, splitY)
+          top.setOrigin(0, 0)
+          top.draw('house', 0, 0)
+          top.setDepth(anchorPy + houseH)
         }
-      }
+
+        if (tile === TERRAIN.GREENHOUSE) {
+          const texture = this.textures.get('greenhouse').getSourceImage() as HTMLImageElement
+          const ghW = texture.width
+          const ghH = texture.height
+          const splitY = Math.floor(ghH * 0.2)
+
+          const anchorPx = x * TILE_SIZE
+          const anchorPy = (y + 1) * TILE_SIZE
+
+          const full = this.add.image(anchorPx, anchorPy, 'greenhouse')
+          full.setOrigin(0, 1)
+          full.setDepth(anchorPy - TILE_SIZE * 2)
+
+          const spriteTopY = anchorPy - ghH
+          const top = this.add.renderTexture(anchorPx, spriteTopY, ghW, splitY)
+          top.setOrigin(0, 0)
+          top.draw('greenhouse', 0, 0)
+          top.setDepth(anchorPy + ghH)
+        }
+      }     
     }
 
-    // Also add overhead tree sprites above the render texture for depth
     this.addOverheadTrees()
+    this.renderDecor()
   }
 
   private addOverheadTrees(): void {
-    // Place tree sprites at higher depth for overhead effect on border
-    const borderWidth = 6
-    const borderHeight = 3
-    const rightStart = MAP_WIDTH - borderWidth
-    const midX = Math.floor(MAP_WIDTH / 2)
-    const verticalCols = [midX - 1, midX, midX + 1]
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
-        const isLeftRight = x < borderWidth || x >= rightStart
-        const isTopBottom = y < borderHeight || y >= MAP_HEIGHT - borderHeight
-        const isBorder = isLeftRight || isTopBottom
-        const isNorthGap = verticalCols.includes(x) && y < borderHeight
-        if (isBorder && !isNorthGap && x % 3 === 0 && y % 3 === 0) {
-          const tree = this.add.image(x * TILE_SIZE, y * TILE_SIZE, 'tree')
-          tree.setOrigin(0, 0)
-          tree.setDepth(50)
+        if (TERRAIN_MAP[y][x] === TERRAIN.TREE) {
+          const texture = this.textures.get('tree').getSourceImage() as HTMLImageElement
+          const treeW = texture.width
+          const treeH = texture.height
+          const splitY = Math.floor(treeH * 0.5)
+          // Anchor is bottom-left
+          const anchorPx = x * TILE_SIZE
+          const anchorPy = (y + 1) * TILE_SIZE // bottom edge of anchor tile
+
+          // Full tree — origin at bottom-left
+          const full = this.add.image(anchorPx, anchorPy, 'tree')
+          full.setOrigin(0, 1)
+          full.setDepth(anchorPy - 1)
+
+          // Top portion — floats above player
+          const spriteTopY = anchorPy - treeH
+          const top = this.add.renderTexture(anchorPx, spriteTopY, treeW, splitY)
+          top.setOrigin(0, 0)
+          top.draw('tree', 0, 0)
+          top.setDepth(anchorPy + treeH)
         }
       }
     }
   }
+
+private renderDecor(): void {
+
+  for (let y = 0; y < MAP_HEIGHT; y++) {
+    for (let x = 0; x < MAP_WIDTH; x++) {
+
+      const tile = DECOR_MAP[y][x]
+
+      if (tile === DECOR.FLOWER_BUSH) {
+
+        const px = x * TILE_SIZE + TILE_SIZE / 2
+        const py = y * TILE_SIZE + TILE_SIZE / 2
+
+        const bush = this.add.image(px, py, 'flower_bush')
+
+        bush.setOrigin(0.5, 0.5)
+
+        // depth based on bottom of sprite
+        bush.setDepth(py - TILE_SIZE - 1 / 2) // 24/2 = 12
+
+      }
+
+    }
+  }
+}
+  
 
   update(_time: number, delta: number): void {
     this.localPlayer.update(COLLISION_MAP)
