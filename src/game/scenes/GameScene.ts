@@ -202,6 +202,13 @@ export class GameScene extends Phaser.Scene {
           top.draw('greenhouse', 0, 0)
           top.setDepth(anchorPy + ghH)
         }
+
+        if (tile === TERRAIN.SAND) {
+          rt.drawFrame('sand', undefined, x * TILE_SIZE, y * TILE_SIZE)
+        }
+        if (tile === TERRAIN.WATER) {
+          rt.drawFrame('water', undefined, x * TILE_SIZE, y * TILE_SIZE)
+        }
       }     
     }
 
@@ -237,30 +244,63 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-private renderDecor(): void {
-
-  for (let y = 0; y < MAP_HEIGHT; y++) {
-    for (let x = 0; x < MAP_WIDTH; x++) {
-
-      const tile = DECOR_MAP[y][x]
-
-      if (tile === DECOR.FLOWER_BUSH) {
+  private renderDecor(): void {
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+      for (let x = 0; x < MAP_WIDTH; x++) {
+        const tile = DECOR_MAP[y][x]
+        if (tile === DECOR.NONE) continue
 
         const px = x * TILE_SIZE + TILE_SIZE / 2
         const py = y * TILE_SIZE + TILE_SIZE / 2
 
-        const bush = this.add.image(px, py, 'flower_bush')
+        if (tile === DECOR.FLOWER_BUSH) {
+          const bush = this.add.image(px, py, 'flower_bush')
+          bush.setOrigin(0.5, 0.5)
+          bush.setDepth(py - TILE_SIZE / 2)
+          continue
+        }
 
-        bush.setOrigin(0.5, 0.5)
+        // Ledge sprites — base texture key + flip flags derived from direction
+        let key = ''
+        let flipX = false
+        let flipY = false
 
-        // depth based on bottom of sprite
-        bush.setDepth(py - TILE_SIZE - 1 / 2) // 24/2 = 12
+        switch (tile) {
+          case DECOR.LEDGE_RIGHT:             key = 'ledge-right';             break
+          case DECOR.LEDGE_BOTTOM:            key = 'ledge-bottom';            break
+          case DECOR.LEDGE_INSET_LOWER_RIGHT: key = 'ledge-inset-lower-right'; break
+          case DECOR.LEDGE_LOWER_RIGHT:       key = 'ledge-lower-right';       break
+          case DECOR.LEDGE_TOP:               key = 'ledge-bottom';            flipY = true;              break
+          case DECOR.LEDGE_UPPER_RIGHT:       key = 'ledge-lower-right';       flipY = true;              break
+          case DECOR.LEDGE_LOWER_LEFT:        key = 'ledge-lower-right';       flipX = true;              break
+          case DECOR.LEDGE_UPPER_LEFT:        key = 'ledge-lower-right';       flipX = true; flipY = true; break
+          case DECOR.LEDGE_INSET_LOWER_LEFT:  key = 'ledge-inset-lower-right'; flipX = true;              break
+          // Water edges
+          case DECOR.WATER_RIGHT:             key = 'water-right';             break
+          case DECOR.WATER_BOTTOM:            key = 'water-bottom';            break
+          case DECOR.WATER_INSET_LOWER_RIGHT: key = 'water-inset-lower-right'; break
+          case DECOR.WATER_LOWER_RIGHT:       key = 'water-lower-right';       break
+          case DECOR.WATER_TOP:               key = 'water-bottom';            flipY = true;               break
+          case DECOR.WATER_LEFT:              key = 'water-right';             flipX = true;               break
+          case DECOR.WATER_UPPER_RIGHT:       key = 'water-lower-right';       flipY = true;               break
+          case DECOR.WATER_LOWER_LEFT:        key = 'water-lower-right';       flipX = true;               break
+          case DECOR.WATER_UPPER_LEFT:        key = 'water-lower-right';       flipX = true; flipY = true;  break
+          case DECOR.WATER_INSET_LOWER_LEFT:  key = 'water-inset-lower-right'; flipX = true;               break
+          // Ladder
+          case DECOR.LADDER_TOP:    key = 'ladder-top';    break
+          case DECOR.LADDER_MIDDLE: key = 'ladder-side';   break
+          case DECOR.LADDER_BOTTOM: key = 'ladder-bottom'; break
+          default: continue
+        }
 
+        const img = this.add.image(px, py, key)
+        img.setOrigin(0.5, 0.5)
+        img.setFlipX(flipX)
+        img.setFlipY(flipY)
+        img.setDepth(py - TILE_SIZE - 3)
       }
-
     }
   }
-}
   
 
   update(_time: number, delta: number): void {

@@ -36,6 +36,19 @@ export class BootScene extends Phaser.Scene {
     this.load.image('house', '/pixel/house-1.png')
     this.load.image('greenhouse', '/pixel/greenhouse.png')
     this.load.image('flower_bush', '/pixel/flower_bush-2.png')
+    this.load.image('sand', '/pixel/sand.png')
+    this.load.image('water', '/pixel/water.png')
+    this.load.image('ledge-right', '/pixel/ledge/ledge-right-2.png')
+    this.load.image('ledge-bottom', '/pixel/ledge/ledge-bottom-2.png')
+    this.load.image('ledge-inset-lower-right', '/pixel/ledge/ledge-inset-lower-right-2.png')
+    this.load.image('ledge-lower-right', '/pixel/ledge/ledge-lower-right-2.png')
+    this.load.image('ladder-top', '/pixel/ladder/ladder-top.png')
+    this.load.image('ladder-side', '/pixel/ladder/ladder-side.png')
+    this.load.image('ladder-bottom', '/pixel/ladder/ladder-bottom.png')
+    this.load.image('water-right', '/pixel/water/water-right.png')
+    this.load.image('water-bottom', '/pixel/water/water-bottom.png')
+    this.load.image('water-inset-lower-right', '/pixel/water/water-inset-lower-right.png')
+    this.load.image('water-lower-right', '/pixel/water/water-lower-right.png')
 
     // Helper to measure an image before Phaser loads it
     const getImageSize = (url: string): Promise<{ w: number; h: number }> =>
