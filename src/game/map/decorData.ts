@@ -25,6 +25,7 @@ export const DECOR = {
   LADDER_TOP: 21,
   LADDER_MIDDLE: 22,
   LADDER_BOTTOM: 23,
+  MAILBOX: 24,
 
 } as const
 

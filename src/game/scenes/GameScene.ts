@@ -209,6 +209,10 @@ export class GameScene extends Phaser.Scene {
         if (tile === TERRAIN.WATER) {
           rt.drawFrame('water', undefined, x * TILE_SIZE, y * TILE_SIZE)
         }
+
+        if (tile === TERRAIN.MAILBOX) {
+          rt.drawFrame('mailbox', undefined, x * TILE_SIZE, y * TILE_SIZE)
+        }
       }     
     }
 

@@ -49,7 +49,8 @@ export class BootScene extends Phaser.Scene {
     this.load.image('water-bottom', '/pixel/water/water-bottom.png')
     this.load.image('water-inset-lower-right', '/pixel/water/water-inset-lower-right.png')
     this.load.image('water-lower-right', '/pixel/water/water-lower-right.png')
-
+    this.load.image('mailbox', '/pixel/mailbox.png')
+    
     // Helper to measure an image before Phaser loads it
     const getImageSize = (url: string): Promise<{ w: number; h: number }> =>
       new Promise((resolve) => {

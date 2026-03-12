@@ -2,7 +2,7 @@ export interface InteractionZone {
   id: string
   type: 'about' | 'projects' | 'contact' | 'career' | 'placeholder'
   label: string
-  tiles: Array<{ x: number; y: number }>
+  tiles?: Array<{ x: number; y: number }>
 }
 
 function rect(x1: number, y1: number, x2: number, y2: number): Array<{ x: number; y: number }> {
@@ -21,21 +21,22 @@ export const INTERACTION_ZONES: InteractionZone[] = [
     type: 'about',
     label: 'About Me [E]',
     // Full collision footprint of main house: cols 9–13, rows 7–10
-    tiles: rect(9, 8, 13, 10),
+    tiles: rect(9, 9, 13, 11),
   },
-  {
-    id: 'house-neighbor',
-    type: 'placeholder',
-    label: '??? [E]',
-    // Full collision footprint of neighbor house: cols 19–23, rows 7–10
-    tiles: rect(25, 8, 29, 10),
-  },
+  // {
+  //   id: 'house-neighbor',
+  //   type: 'placeholder',
+  //   label: '??? [E]',
+  //   // Full collision footprint of neighbor house: cols 19–23, rows 7–10
+  //   tiles: rect(25, 8, 29, 10),
+  // },
   {
     id: 'lab',
     type: 'projects',
     label: 'Projects [E]',
     // Full collision footprint of lab: cols 9–13, rows 14–17
-    tiles: rect(9, 15, 13, 17),
+    tiles: rect(27, 7, 33, 10),
+
   },
   {
     id: 'mailbox',
