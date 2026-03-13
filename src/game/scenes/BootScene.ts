@@ -55,7 +55,7 @@ export class BootScene extends Phaser.Scene {
     this.load.spritesheet('path-inset', '/pixel/tile-path/tile-path-inset.png', { frameWidth: 16, frameHeight: 16 })
     this.load.spritesheet('grass-path-inset', '/pixel/tile-path/grass-path-inset.png', { frameWidth: 16, frameHeight: 16 })
     this.load.spritesheet('grass-path', '/pixel/tile-path/grass-path.png', { frameWidth: 16, frameHeight: 16 })
-    this.load.spritesheet('flower-tiles', '/pixel/decor/flower-tile.png', { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('flower-tiles', '/pixel/decor/flower-tiles.png', { frameWidth: 16, frameHeight: 16 })
     this.load.spritesheet('fence', '/pixel/decor/fence.png', { frameWidth: 16, frameHeight: 16 })
     this.load.image('name', '/pixel/decor/hanz.png')
     this.load.image('flower-pink', '/pixel/decor/flower-pink.png')

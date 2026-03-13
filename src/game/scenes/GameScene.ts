@@ -375,10 +375,37 @@ export class GameScene extends Phaser.Scene {
           continue
         }
 
-        const { key, flipX, flipY } = this.resolveDecorSprite(tile)
+        if (tile === DECOR.FLOWER_ORANGE ){
+          const flower = this.add.image(px, py, 'flower-orange')
+          flower.setOrigin(0.5, 0.5)
+          flower.setDepth(LAYER_BASE)
+          this.decorGroup.add(flower)
+          continue
+        }
+
+        if (tile === DECOR.FLOWER_WHITE ){
+          const flower = this.add.image(px, py, 'flower-white')
+          flower.setOrigin(0.5, 0.5)
+          flower.setDepth(LAYER_BASE)
+          this.decorGroup.add(flower)
+          continue
+        }
+
+        if (tile >= DECOR.FLOWER_TILE_1 && tile <= DECOR.FLOWER_TILE_8) {
+          const { key, frame } = this.resolveDecorSprite(tile)
+          if (!key) continue
+          
+          const flower = this.add.image(px, py, key, frame)
+          flower.setDepth(LAYER_BASE)  // Set to LAYER_BASE + y position
+          this.decorGroup.add(flower)
+          continue
+        }
+
+
+        const { key, frame, flipX, flipY } = this.resolveDecorSprite(tile)
         if (!key) continue
 
-        const img = this.add.image(px, py, key)
+        const img = this.add.image(px, py, key, frame)
         img.setOrigin(0.5, 0.5)
         img.setFlipX(flipX)
         img.setFlipY(flipY)
@@ -391,8 +418,9 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private resolveDecorSprite(tile: number): { key: string; flipX: boolean; flipY: boolean } {
+  private resolveDecorSprite(tile: number): { key: string; frame?: number; flipX: boolean; flipY: boolean } {
     let key   = ''
+    let frame: number | undefined = undefined
     let flipX = false
     let flipY = false
 
@@ -426,10 +454,22 @@ export class GameScene extends Phaser.Scene {
       case DECOR.FLOWER_ORANGE: key = 'flower-orange'; break
       case DECOR.FLOWER_WHITE:  key = 'flower-white';  break
 
+      case DECOR.MAILBOX:    key = 'mailbox'; break
+
+      case DECOR.FLOWER_TILE_1: key = 'flower-tiles'; frame = 0; break
+      case DECOR.FLOWER_TILE_2: key = 'flower-tiles'; frame = 1; break
+      case DECOR.FLOWER_TILE_3: key = 'flower-tiles'; frame = 2; break
+      case DECOR.FLOWER_TILE_4: key = 'flower-tiles'; frame = 3; break
+      case DECOR.FLOWER_TILE_5: key = 'flower-tiles'; frame = 4; break
+      case DECOR.FLOWER_TILE_6: key = 'flower-tiles'; frame = 5; break
+      case DECOR.FLOWER_TILE_7: key = 'flower-tiles'; frame = 6; break
+      case DECOR.FLOWER_TILE_8: key = 'flower-tiles'; frame = 7; break
+
+
       default: break
     }
 
-    return { key, flipX, flipY }
+    return { key, frame, flipX, flipY }
   }
 
   /**

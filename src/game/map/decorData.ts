@@ -32,6 +32,15 @@ export const DECOR = {
   FLOWER_ORANGE: 27,
   FLOWER_WHITE: 28,
   WILD_GRASS: 29,
+
+  FLOWER_TILE_1: 30,  // frame 0
+  FLOWER_TILE_2: 31,  // frame 1
+  FLOWER_TILE_3: 32,  // frame 2
+  FLOWER_TILE_4: 33,  // frame 3
+  FLOWER_TILE_5: 34,  // frame 3
+  FLOWER_TILE_6: 35,  // frame 3
+  FLOWER_TILE_7: 36,  // frame 3
+  FLOWER_TILE_8: 37,  // frame 3
 } as const
 
 export type DecorTile = typeof DECOR[keyof typeof DECOR]
@@ -52,8 +61,6 @@ DECOR_MAP[16][36] = DECOR.LADDER_MIDDLE
 DECOR_MAP[17][36] = DECOR.LADDER_MIDDLE
 DECOR_MAP[18][36] = DECOR.LADDER_BOTTOM
 
-// Name
-DECOR_MAP[19][19] = DECOR.NAME
 
 // Wild Grass
 for (let y = 3; y < 5; y++) {
@@ -61,6 +68,48 @@ for (let y = 3; y < 5; y++) {
       DECOR_MAP[y][x] = DECOR.WILD_GRASS
   }
 }
+
+// Wild Grass
+for (let y = 5; y < 7; y++) {
+  for (let x = 8; x < 16; x++) {  
+      DECOR_MAP[y][x] = DECOR.WILD_GRASS
+  }
+}
+
+// Deterministic sparse flowers using coordinate hash
+const minX = 7, maxX = 32
+const minY = 18, maxY = 21
+
+const flowerFrames = [
+  DECOR.FLOWER_TILE_1,
+  DECOR.FLOWER_TILE_2,
+  DECOR.FLOWER_TILE_3,
+  DECOR.FLOWER_TILE_4,
+  DECOR.FLOWER_TILE_5,
+  DECOR.FLOWER_TILE_6,
+  DECOR.FLOWER_TILE_7,
+  DECOR.FLOWER_TILE_8,
+]
+
+// More chaotic hash that avoids obvious patterns
+function hash(x: number, y: number): number {
+  let n = x * 374761393 + y * 668265263
+  n = (n ^ (n >> 13)) * 1274126177
+  return ((n ^ (n >> 15)) & 0x7fffffff) % 100
+}
+
+for (let y = minY; y <= maxY; y++) {
+  for (let x = minX; x <= maxX; x++) {
+    if (hash(x, y) < 30) {  // 30% deterministic
+      const frameIndex = hash(x + 1000, y + 2000) % flowerFrames.length
+      DECOR_MAP[y][x] = flowerFrames[frameIndex]
+    }
+  }
+}
+
+// Name
+DECOR_MAP[19][19] = DECOR.NAME
+
 
 // FLOWERS
 DECOR_MAP[10][9] = DECOR.FLOWER_BUSH
@@ -74,6 +123,33 @@ DECOR_MAP[9][25] = DECOR.FLOWER_BUSH
 DECOR_MAP[10][29] = DECOR.FLOWER_BUSH
 DECOR_MAP[10][30] = DECOR.FLOWER_BUSH
 DECOR_MAP[10][31] = DECOR.FLOWER_BUSH
+
+for (let y = 6; y < 8; y++) {
+  for (let x = 8; x < 13; x++) {
+    DECOR_MAP[x][y] = DECOR.FLOWER_ORANGE
+  }
+}
+for (let y = 16; y < 18; y++) {
+  for (let x = 8; x < 13; x++) {
+    DECOR_MAP[x][y] = DECOR.FLOWER_ORANGE
+  }
+}
+
+for (let y = 20; y < 22; y++) {
+  for (let x = 6; x < 13; x++) {
+    DECOR_MAP[x][y] = DECOR.FLOWER_WHITE
+  }
+}
+
+for (let y = 34; y < 36; y++) {
+  for (let x = 6; x < 13; x++) {
+    DECOR_MAP[x][y] = DECOR.FLOWER_WHITE
+  }
+}
+
+
+DECOR_MAP[12][8] = DECOR.MAILBOX
+
 
 // 1. Along the path edges in the main village area (around rows 5-10, cols 20-30)
 
