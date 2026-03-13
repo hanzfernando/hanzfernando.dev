@@ -31,7 +31,8 @@ export class BootScene extends Phaser.Scene {
     })
 
     // Load static assets
-    this.load.image('grass', '/pixel/grass.png')
+    this.load.image('grass-1', '/pixel/grass-1.png')
+    this.load.image('grass-2', '/pixel/grass-2.png')
     this.load.image('tree', '/pixel/pine_tree.png')
     this.load.image('house', '/pixel/house-1.png')
     this.load.image('greenhouse', '/pixel/greenhouse.png')
@@ -50,7 +51,10 @@ export class BootScene extends Phaser.Scene {
     this.load.image('water-inset-lower-right', '/pixel/water/water-inset-lower-right.png')
     this.load.image('water-lower-right', '/pixel/water/water-lower-right.png')
     this.load.image('mailbox', '/pixel/mailbox.png')
-    
+    this.load.image('lab', '/pixel/building/lab.png')
+    this.load.spritesheet('path-sheet', '/pixel/tile-path/tile-path-1.png',  { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('path-inset', '/pixel/tile-path/tile-path-inset.png', { frameWidth: 16, frameHeight: 16 })
+
     // Helper to measure an image before Phaser loads it
     const getImageSize = (url: string): Promise<{ w: number; h: number }> =>
       new Promise((resolve) => {
@@ -73,13 +77,6 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Generate programmatic textures
-    // this.generatePathTexture()
-    // this.generatePlayerRemote()
-    // this.generateMailbox()
-    // this.generateLabWall()
-    // this.generateLabRoof()
-
     // Create walk/idle animations for each character sheet
     const dirs = ['down', 'left', 'right', 'up'] as const
     const cols = 4
@@ -106,54 +103,4 @@ export class BootScene extends Phaser.Scene {
 
     this.scene.start('GameScene')
   }
-
-  // private generatePathTexture(): void {
-  //   const g = this.add.graphics()
-  //   g.fillStyle(0xc4a265, 1)
-  //   g.fillRect(0, 0, 16, 16)
-  //   g.generateTexture('path-tile', 16, 16)
-  //   g.destroy()
-  // }
-
-  // private generatePlayerRemote(): void {
-  //   const g = this.add.graphics()
-  //   g.fillStyle(0x4466aa, 1)
-  //   g.fillRect(1, 1, 14, 14)
-  //   g.lineStyle(1, 0x223366, 1)
-  //   g.strokeRect(1, 1, 14, 14)
-  //   g.fillStyle(0xffffff, 1)
-  //   g.fillCircle(8, 12, 2)
-  //   g.generateTexture('player-remote', 16, 16)
-  //   g.destroy()
-  // }
-
-  // private generateMailbox(): void {
-  //   const g = this.add.graphics()
-  //   g.fillStyle(0x888888, 1)
-  //   g.fillRect(6, 8, 4, 8)
-  //   g.fillStyle(0x8b4513, 1)
-  //   g.fillRect(2, 2, 12, 8)
-  //   g.fillStyle(0xff3333, 1)
-  //   g.fillRect(13, 3, 2, 4)
-  //   g.generateTexture('mailbox-sprite', 16, 16)
-  //   g.destroy()
-  // }
-
-  // private generateLabWall(): void {
-  //   const g = this.add.graphics()
-  //   g.fillStyle(0x7090a0, 1)
-  //   g.fillRect(0, 0, 16, 16)
-  //   g.lineStyle(1, 0x506070, 0.5)
-  //   g.strokeRect(0, 0, 16, 16)
-  //   g.generateTexture('lab-wall', 16, 16)
-  //   g.destroy()
-  // }
-
-  // private generateLabRoof(): void {
-  //   const g = this.add.graphics()
-  //   g.fillStyle(0x405060, 1)
-  //   g.fillRect(0, 0, 16, 16)
-  //   g.generateTexture('lab-roof', 16, 16)
-  //   g.destroy()
-  // }
 }
