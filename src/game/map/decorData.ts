@@ -4,25 +4,6 @@ import { BASE, BASE_MAP, BaseTile } from './terrainData'
 export const DECOR = {
   NONE: 0,
   FLOWER_BUSH: 1,
-  LEDGE_TOP: 2,
-  LEDGE_RIGHT: 3,
-  LEDGE_BOTTOM: 4,
-  LEDGE_INSET_LOWER_RIGHT: 5,
-  LEDGE_LOWER_RIGHT: 6,
-  LEDGE_UPPER_RIGHT: 7,
-  LEDGE_LOWER_LEFT: 8,
-  LEDGE_UPPER_LEFT: 9,
-  LEDGE_INSET_LOWER_LEFT: 10,
-  WATER_TOP: 11,
-  WATER_RIGHT: 12,
-  WATER_BOTTOM: 13,
-  WATER_LEFT: 14,
-  WATER_INSET_LOWER_RIGHT: 15,
-  WATER_LOWER_RIGHT: 16,
-  WATER_UPPER_RIGHT: 17,
-  WATER_LOWER_LEFT: 18,
-  WATER_UPPER_LEFT: 19,
-  WATER_INSET_LOWER_LEFT: 20,
   LADDER_TOP: 21,
   LADDER_MIDDLE: 22,
   LADDER_BOTTOM: 23,
@@ -58,8 +39,7 @@ DECOR_MAP[13][36] = DECOR.LADDER_TOP
 DECOR_MAP[14][36] = DECOR.LADDER_MIDDLE
 DECOR_MAP[15][36] = DECOR.LADDER_MIDDLE
 DECOR_MAP[16][36] = DECOR.LADDER_MIDDLE
-DECOR_MAP[17][36] = DECOR.LADDER_MIDDLE
-DECOR_MAP[18][36] = DECOR.LADDER_BOTTOM
+DECOR_MAP[17][36] = DECOR.LADDER_BOTTOM
 
 
 // Wild Grass
@@ -149,121 +129,3 @@ for (let y = 34; y < 36; y++) {
 
 
 DECOR_MAP[12][8] = DECOR.MAILBOX
-
-
-// 1. Along the path edges in the main village area (around rows 5-10, cols 20-30)
-
-/**
- * Scans TERRAIN_MAP (for higher-ground tiles) and BASE_MAP (for sand tiles)
- * and writes ledge sprites into decorMap wherever solid terrain borders sand.
- *
- * Higher-ground = anything in TERRAIN_MAP that is not STAIRS.
- * Sand = BASE_MAP tile === BASE.SAND.
- */
-export function generateLedges(
-  terrainMap: TerrainTile[][],
-  baseMap: BaseTile[][],
-  decorMap: DecorTile[][]
-): void {
-  const rows = terrainMap.length
-  const cols = terrainMap[0]?.length ?? 0
-
-  const isSand = (ty: number, tx: number): boolean => {
-    if (ty < 0 || ty >= rows || tx < 0 || tx >= cols) return false
-    return baseMap[ty][tx] === BASE.SAND
-  }
-
-  const isHigher = (ty: number, tx: number): boolean => {
-    if (ty < 0 || ty >= rows || tx < 0 || tx >= cols) return false
-    // A tile is "higher ground" if it has no base type that makes it low
-    // and is not a stair tile in the terrain map
-    const base = baseMap[ty][tx]
-    if (base === BASE.SAND || base === BASE.WATER) return false
-    return terrainMap[ty][tx] !== TERRAIN.STAIRS
-  }
-
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      // Only higher-ground tiles emit ledge sprites
-      if (!isHigher(y, x)) continue
-
-      const sandN = isSand(y - 1, x)
-      const sandS = isSand(y + 1, x)
-      const sandE = isSand(y, x + 1)
-      const sandW = isSand(y, x - 1)
-
-      // --- Straight edges ---
-      if (sandE && !sandN && !sandS) { decorMap[y][x] = DECOR.LEDGE_RIGHT;  continue }
-      if (sandS && !sandE && !sandW) { decorMap[y][x] = DECOR.LEDGE_BOTTOM; continue }
-      if (sandN && !sandE && !sandW) { decorMap[y][x] = DECOR.LEDGE_TOP;    continue }
-      // sandW only — no LEDGE_LEFT sprite; skip
-      if (sandW && !sandN && !sandS) continue
-
-      // --- Convex outer corners ---
-      if (sandS && sandE) { decorMap[y][x] = DECOR.LEDGE_LOWER_RIGHT; continue }
-      if (sandS && sandW) { decorMap[y][x] = DECOR.LEDGE_LOWER_LEFT;  continue }
-      if (sandN && sandE) { decorMap[y][x] = DECOR.LEDGE_UPPER_RIGHT; continue }
-      if (sandN && sandW) { decorMap[y][x] = DECOR.LEDGE_UPPER_LEFT;  continue }
-
-      // --- Concave inner corners (diagonal sand, no cardinal sand) ---
-      if (!sandS && !sandE && isSand(y + 1, x + 1)) { decorMap[y][x] = DECOR.LEDGE_INSET_LOWER_RIGHT; continue }
-      if (!sandS && !sandW && isSand(y + 1, x - 1)) { decorMap[y][x] = DECOR.LEDGE_INSET_LOWER_LEFT;  continue }
-    }
-  }
-}
-
-/**
- * Scans BASE_MAP and writes water-edge sprites into decorMap wherever
- * SAND tiles border WATER tiles.
- *
- * Both SAND and WATER now live in BASE_MAP, so TERRAIN_MAP is not needed here.
- */
-export function generateWaterEdges(
-  baseMap: BaseTile[][],
-  decorMap: DecorTile[][]
-): void {
-  const rows = baseMap.length
-  const cols = baseMap[0]?.length ?? 0
-
-  const isSand  = (ty: number, tx: number): boolean => {
-    if (ty < 0 || ty >= rows || tx < 0 || tx >= cols) return false
-    return baseMap[ty][tx] === BASE.SAND
-  }
-
-  const isWater = (ty: number, tx: number): boolean => {
-    if (ty < 0 || ty >= rows || tx < 0 || tx >= cols) return false
-    return baseMap[ty][tx] === BASE.WATER
-  }
-
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      // Only sand tiles produce water-edge sprites
-      if (!isSand(y, x)) continue
-
-      const waterN = isWater(y - 1, x)
-      const waterS = isWater(y + 1, x)
-      const waterE = isWater(y, x + 1)
-      const waterW = isWater(y, x - 1)
-
-      // --- Straight edges ---
-      if (waterE && !waterN && !waterS) { decorMap[y][x] = DECOR.WATER_RIGHT;  continue }
-      if (waterW && !waterN && !waterS) { decorMap[y][x] = DECOR.WATER_LEFT;   continue }
-      if (waterS && !waterE && !waterW) { decorMap[y][x] = DECOR.WATER_BOTTOM; continue }
-      if (waterN && !waterE && !waterW) { decorMap[y][x] = DECOR.WATER_TOP;    continue }
-
-      // --- Convex outer corners ---
-      if (waterS && waterE) { decorMap[y][x] = DECOR.WATER_LOWER_RIGHT; continue }
-      if (waterS && waterW) { decorMap[y][x] = DECOR.WATER_LOWER_LEFT;  continue }
-      if (waterN && waterE) { decorMap[y][x] = DECOR.WATER_UPPER_RIGHT; continue }
-      if (waterN && waterW) { decorMap[y][x] = DECOR.WATER_UPPER_LEFT;  continue }
-
-      // --- Concave inner corners ---
-      if (!waterS && !waterE && isWater(y + 1, x + 1)) { decorMap[y][x] = DECOR.WATER_INSET_LOWER_RIGHT; continue }
-      if (!waterS && !waterW && isWater(y + 1, x - 1)) { decorMap[y][x] = DECOR.WATER_INSET_LOWER_LEFT;  continue }
-    }
-  }
-}
-
-// Run generators — order matters: water edges first, then ledges on top
-// generateWaterEdges(BASE_MAP, DECOR_MAP)
-generateLedges(TERRAIN_MAP, BASE_MAP, DECOR_MAP)

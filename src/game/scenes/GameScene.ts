@@ -14,6 +14,7 @@ import { DECOR, DECOR_MAP } from '../map/decorData'
 import { PathAutotiler } from '../helpers/PathAutoTiler'
 import { FenceRenderer } from '../helpers/FenceRenderer'
 import { WaterBorderRenderer } from '../helpers/WaterBorderRenderer'
+import { LedgeRenderer } from '../helpers/LedgeRenderer'
 
 // ─── Depth constants ────────────────────────────────────────────────────────
 export const LAYER_BASE     =       0
@@ -226,11 +227,12 @@ export class GameScene extends Phaser.Scene {
       TILE_SIZE
     );
 
-    // In renderBaseLayer(), after creating the waterBorderRenderer:
-    console.log('Textures loaded:', {
-      'water-border': this.textures.exists('water-border'),
-      'water-corner': this.textures.exists('water-corner')
-    });
+    const ledgeRenderer = new LedgeRenderer(
+      this,
+      'ledge',        // 3x3 spritesheet for edges
+      'ledge-inset',  // 2x2 spritesheet for inset/peninsula
+      TILE_SIZE
+    );
 
     this.fenceRenderer = new FenceRenderer(this, {
       sheetKey: 'fence',
@@ -257,7 +259,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     waterBorderRenderer.renderAll(rt, BASE_MAP)
-
+    ledgeRenderer.renderAll(rt, BASE_MAP)
     // Pass 2 — path autotiling (single O(n) pass over the whole map)
     pathTiler.drawAll(rt, BASE_MAP, BASE.PATH)
     grassPathTiler.drawAll(rt, BASE_MAP, BASE.GRASS_PATH)
@@ -419,13 +421,11 @@ export class GameScene extends Phaser.Scene {
         }
 
 
-        const { key, frame, flipX, flipY } = this.resolveDecorSprite(tile)
+        const { key, frame } = this.resolveDecorSprite(tile)
         if (!key) continue
 
         const img = this.add.image(px, py, key, frame)
         img.setOrigin(0.5, 0.5)
-        img.setFlipX(flipX)
-        img.setFlipY(flipY)
         img.setDepth(depth)
         if (key.startsWith('ladder')) {
           img.setDepth(LAYER_BASE + py) // Ladders are between terrain and overhead
@@ -435,36 +435,14 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private resolveDecorSprite(tile: number): { key: string; frame?: number; flipX: boolean; flipY: boolean } {
+  private resolveDecorSprite(tile: number): { key: string; frame?: number;} {
     let key   = ''
     let frame: number | undefined = undefined
-    let flipX = false
-    let flipY = false
 
     switch (tile) {
-      case DECOR.LEDGE_RIGHT:             key = 'ledge-right';             break
-      case DECOR.LEDGE_BOTTOM:            key = 'ledge-bottom';            break
-      case DECOR.LEDGE_INSET_LOWER_RIGHT: key = 'ledge-inset-lower-right'; break
-      case DECOR.LEDGE_LOWER_RIGHT:       key = 'ledge-lower-right';       break
-      case DECOR.LEDGE_TOP:               key = 'ledge-bottom';  flipY = true;                   break
-      case DECOR.LEDGE_UPPER_RIGHT:       key = 'ledge-lower-right'; flipY = true;               break
-      case DECOR.LEDGE_LOWER_LEFT:        key = 'ledge-lower-right'; flipX = true;               break
-      case DECOR.LEDGE_UPPER_LEFT:        key = 'ledge-lower-right'; flipX = true; flipY = true; break
-      case DECOR.LEDGE_INSET_LOWER_LEFT:  key = 'ledge-inset-lower-right'; flipX = true;         break
-
-      case DECOR.WATER_RIGHT:             key = 'water-right';             break
-      case DECOR.WATER_BOTTOM:            key = 'water-bottom';            break
-      case DECOR.WATER_INSET_LOWER_RIGHT: key = 'water-inset-lower-right'; break
-      case DECOR.WATER_LOWER_RIGHT:       key = 'water-lower-right';       break
-      case DECOR.WATER_TOP:               key = 'water-bottom';  flipY = true;                   break
-      case DECOR.WATER_LEFT:              key = 'water-right';   flipX = true;                   break
-      case DECOR.WATER_UPPER_RIGHT:       key = 'water-lower-right'; flipY = true;               break
-      case DECOR.WATER_LOWER_LEFT:        key = 'water-lower-right'; flipX = true;               break
-      case DECOR.WATER_UPPER_LEFT:        key = 'water-lower-right'; flipX = true; flipY = true; break
-      case DECOR.WATER_INSET_LOWER_LEFT:  key = 'water-inset-lower-right'; flipX = true;         break
 
       case DECOR.LADDER_TOP:    key = 'ladder-top';    break
-      case DECOR.LADDER_MIDDLE: key = 'ladder-side';   break
+      case DECOR.LADDER_MIDDLE: key = 'ladder-middle';   break
       case DECOR.LADDER_BOTTOM: key = 'ladder-bottom'; break
 
       case DECOR.FLOWER_PINK:   key = 'flower-pink';   break
@@ -486,7 +464,7 @@ export class GameScene extends Phaser.Scene {
       default: break
     }
 
-    return { key, frame, flipX, flipY }
+    return { key, frame }
   }
 
   /**

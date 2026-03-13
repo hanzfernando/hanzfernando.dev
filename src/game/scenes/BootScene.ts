@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { MOVE_DURATION_MS } from '../constants'
+import { CHAR_COUNT, MOVE_DURATION_MS } from '../constants'
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -38,19 +38,13 @@ export class BootScene extends Phaser.Scene {
     this.load.image('flower_bush', '/pixel/flower_bush-2.png')
     this.load.image('sand', '/pixel/water/sand.png')
     this.load.image('water', '/pixel/water/water.png')
-    this.load.image('ledge-right', '/pixel/ledge/ledge-right-2.png')
-    this.load.image('ledge-bottom', '/pixel/ledge/ledge-bottom-2.png')
-    this.load.image('ledge-inset-lower-right', '/pixel/ledge/ledge-inset-lower-right-2.png')
-    this.load.image('ledge-lower-right', '/pixel/ledge/ledge-lower-right-2.png')
     this.load.image('ladder-top', '/pixel/ladder/ladder-top.png')
-    this.load.image('ladder-side', '/pixel/ladder/ladder-side.png')
-    this.load.image('ladder-bottom', '/pixel/ladder/ladder-bottom.png')
-    this.load.image('water-right', '/pixel/water/water-right.png')
-    this.load.image('water-bottom', '/pixel/water/water-bottom.png')
-    this.load.image('water-inset-lower-right', '/pixel/water/water-inset-lower-right.png')
-    this.load.image('water-lower-right', '/pixel/water/water-lower-right.png')
+    this.load.image('ladder-middle', '/pixel/ladder/ladder-middle.png')
+    this.load.image('ladder-bottom', '/pixel/ladder/ladder-bottom.png')  
     this.load.image('mailbox', '/pixel/mailbox.png')
     this.load.image('lab', '/pixel/building/lab.png')
+    this.load.spritesheet('ledge', '/pixel/ledge/ledge.png',  { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('ledge-inset', '/pixel/ledge/ledge-inset.png',  { frameWidth: 16, frameHeight: 16 })
     this.load.spritesheet('water-corner', '/pixel/water/water-corner.png',  { frameWidth: 16, frameHeight: 16 })
     this.load.spritesheet('water-border', '/pixel/water/water-border.png',  { frameWidth: 16, frameHeight: 16 })
     this.load.spritesheet('path-sheet', '/pixel/tile-path/tile-path-1.png',  { frameWidth: 16, frameHeight: 16 })
@@ -74,7 +68,7 @@ export class BootScene extends Phaser.Scene {
       })
 
     // Load all 4 character spritesheets, auto-sizing frames from image dimensions / 4×4
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= CHAR_COUNT; i++) {
       const url = `/pixel/char-${i}-sprite.png`
       const { w, h } = await getImageSize(url)
 
@@ -89,7 +83,7 @@ export class BootScene extends Phaser.Scene {
     // Create walk/idle animations for each character sheet
     const dirs = ['down', 'left', 'right', 'up'] as const
     const cols = 4
-    for (let charIdx = 1; charIdx <= 4; charIdx++) {
+    for (let charIdx = 1; charIdx <= CHAR_COUNT; charIdx++) {
       const sheetKey = `char-${charIdx}-sheet`
       for (let row = 0; row < dirs.length; row++) {
         const startFrame = row * cols

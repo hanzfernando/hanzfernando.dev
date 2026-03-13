@@ -136,29 +136,13 @@ export class WaterBorderRenderer {
     const cardinalCount = this.countCardinalWater(neighbors)
     const diagonalCount = this.countDiagonalWater(neighbors)
 
-    // Log the full pattern first
-    console.log(`[${x},${y}] Neighbor pattern:`, {
-      N: top ? 'W' : '.',
-      S: bottom ? 'W' : '.',
-      E: right ? 'W' : '.',
-      W: left ? 'W' : '.',
-      NE: topRight ? 'W' : '.',
-      NW: topLeft ? 'W' : '.',
-      SE: bottomRight ? 'W' : '.',
-      SW: bottomLeft ? 'W' : '.',
-      cardinalCount,
-      diagonalCount
-    })
-
     // If no adjacent water at all, no border needed
     if (cardinalCount === 0 && diagonalCount === 0) {
-      console.log(`[${x},${y}] No water neighbors`)
       return null
     }
 
     // Use CORNER sheet when we have at least 2 cardinal directions AND at least 1 diagonal
     if (cardinalCount >= 2 && diagonalCount >= 1) {
-      console.log(`[${x},${y}] cardinal=${cardinalCount}, diagonal=${diagonalCount} -> using CORNER sheet`)
       
       // Map to WATER_CORNER frames based on which directions are DRY (no water)
       const dryTop = !top
@@ -196,9 +180,6 @@ export class WaterBorderRenderer {
       return { sheet: this.cornerSheetKey, frame: WATER_CORNER.TOP_LEFT_INSET }
     }
 
-    // Otherwise use BORDER sheet
-    console.log(`[${x},${y}] cardinal=${cardinalCount}, diagonal=${diagonalCount} -> using BORDER sheet`)
-    
     // SINGLE CARDINAL DIRECTIONS
     if (top && !bottom && !left && !right) {
       return { sheet: this.borderSheetKey, frame: WATER_BORDER.BOTTOM_MIDDLE }
@@ -269,7 +250,6 @@ export class WaterBorderRenderer {
     }
 
     // Default fallback
-    console.log(`[${x},${y}] Default fallback -> border CENTER`)
     return { sheet: this.borderSheetKey, frame: WATER_BORDER.CENTER }
   }
 
@@ -301,7 +281,6 @@ public renderAll(
         const borderTile = this.getBorderTileForSand(neighbors, x, y)
         
         if (borderTile !== null) {
-          console.log(`Rendering at [${x},${y}]:`, borderTile)
           renderTexture.drawFrame(
             borderTile.sheet,
             borderTile.frame,
