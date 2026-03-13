@@ -27,6 +27,7 @@ export class LocalPlayer {
   }
   private lastMobileDirection: 'up' | 'down' | 'left' | 'right' | null = null
   private pathQueue: Array<'up' | 'down' | 'left' | 'right'> = []
+  private static readonly VERTICAL_OFFSET = -2;
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys
   private wasd: {
@@ -44,7 +45,7 @@ export class LocalPlayer {
     this.sheetKey = charSheetKey(characterIndex)
 
     const px = tileX * TILE_SIZE + TILE_SIZE / 2
-    const py = tileY * TILE_SIZE + TILE_SIZE / 2
+    const py = tileY * TILE_SIZE + TILE_SIZE / 2 + LocalPlayer.VERTICAL_OFFSET
 
     this.sprite = scene.add.sprite(px, py, this.sheetKey, 0)
     this.sprite.play(`${this.sheetKey}-idle-down`)
@@ -93,7 +94,7 @@ export class LocalPlayer {
   }
 
   update(collisionMap: number[][]): void {
-    this.sprite.setDepth(this.sprite.y)
+    this.sprite.setDepth(this._tileY * TILE_SIZE + TILE_SIZE / 2)
 
     if (!this.inputEnabled || this._isMoving) {
       this.throttle?.tick()
@@ -202,8 +203,8 @@ export class LocalPlayer {
     // Play walk animation for current direction
     this.sprite.play(`${this.sheetKey}-walk-${this._direction}`, true)
 
-    const targetPx = nextX * TILE_SIZE + TILE_SIZE / 2
-    const targetPy = nextY * TILE_SIZE + TILE_SIZE / 2
+    const targetPx = nextX * TILE_SIZE + TILE_SIZE / 2 
+    const targetPy = nextY * TILE_SIZE + TILE_SIZE / 2 + LocalPlayer.VERTICAL_OFFSET
 
     this.scene.tweens.add({
       targets: this.sprite,

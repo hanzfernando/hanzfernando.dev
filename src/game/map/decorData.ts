@@ -1,5 +1,4 @@
-import { TERRAIN, TERRAIN_MAP, TerrainTile } from './terrainData'
-import { BASE, BASE_MAP, BaseTile } from './terrainData'
+import { TERRAIN_MAP } from './terrainData'
 
 export const DECOR = {
   NONE: 0,
