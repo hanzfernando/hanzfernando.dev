@@ -16,6 +16,8 @@ interface GameStore {
   selectedCharacter: number
   gamePhase: GamePhase
   chatMessages: ChatMessage[]
+  playerTileX: number | null
+  playerTileY: number | null
   openPanel: (panel: PanelType) => void
   closePanel: () => void
   setUsername: (name: string) => void
@@ -23,6 +25,7 @@ interface GameStore {
   advanceToCharacterSelect: () => void
   startPlaying: () => void
   addChatMessage: (msg: ChatMessage) => void
+  setPlayerTile: (x: number, y: number) => void
   resetToTitle: () => void
 }
 
@@ -33,6 +36,8 @@ export const useGameStore = create<GameStore>((set) => ({
   selectedCharacter: 0,
   gamePhase: 'title',
   chatMessages: [],
+  playerTileX: null,
+  playerTileY: null,
   openPanel: (panel) => set({ activePanel: panel }),
   closePanel: () => set({ activePanel: null }),
   setUsername: (name) => set({ username: name, isUsernameSet: true }),
@@ -41,6 +46,7 @@ export const useGameStore = create<GameStore>((set) => ({
   startPlaying: () => set({ gamePhase: 'playing' }),
   addChatMessage: (msg) =>
     set((state) => ({ chatMessages: [...state.chatMessages, msg] })),
+  setPlayerTile: (x, y) => set({ playerTileX: x, playerTileY: y }),
   resetToTitle: () =>
     set({
       gamePhase: 'title',
@@ -49,5 +55,7 @@ export const useGameStore = create<GameStore>((set) => ({
       isUsernameSet: false,
       selectedCharacter: 0,
       chatMessages: [],
+      playerTileX: null,
+      playerTileY: null,
     }),
 }))

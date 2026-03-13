@@ -5,6 +5,8 @@ import { EventBus, GameEvents } from '@/game/EventBus'
 
 export default function HUD() {
   const username = useGameStore((s) => s.username)
+  const playerTileX = useGameStore((s) => s.playerTileX)
+  const playerTileY = useGameStore((s) => s.playerTileY)
   const resetToTitle = useGameStore((s) => s.resetToTitle)
 
   const handleMoveStart = (direction: 'up' | 'down' | 'left' | 'right') => {
@@ -24,6 +26,9 @@ export default function HUD() {
       {/* Top HUD badges */}
       <div className="absolute top-3 left-3 z-30 bg-black/50 px-2 py-1 text-xs text-white rounded-sm">
         {username || '...'}
+      </div>
+      <div className="absolute top-12 left-3 z-30 bg-black/50 px-2 py-1 text-xs text-white rounded-sm font-mono">
+        {`X: ${playerTileX ?? '--'}  Y: ${playerTileY ?? '--'}`}
       </div>
       <div className="absolute top-3 right-3 z-30 flex items-center gap-2">
         <div className="bg-black/50 px-2 py-1 text-xs text-white rounded-sm">🟢 Online</div>

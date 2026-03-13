@@ -21,7 +21,7 @@ export const INTERACTION_ZONES: InteractionZone[] = [
     type: 'about',
     label: 'About Me [E]',
     // Full collision footprint of main house: cols 9–13, rows 7–10
-    tiles: rect(9, 9, 13, 11),
+    tiles: rect(9, 8, 13, 9),
   },
   // {
   //   id: 'house-neighbor',
@@ -35,7 +35,7 @@ export const INTERACTION_ZONES: InteractionZone[] = [
     type: 'projects',
     label: 'Projects [E]',
     // Full collision footprint of lab: cols 9–13, rows 14–17
-    tiles: rect(27, 7, 33, 10),
+    tiles: rect(23, 7, 31, 9),
 
   },
   {

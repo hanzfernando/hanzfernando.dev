@@ -12,19 +12,23 @@ import { LocalPlayer } from '@/game/entities/LocalPlayer'
 import type { ServerMessage } from '@/types/ws-protocol'
 import { DECOR, DECOR_MAP } from '../map/decorData'
 import { PathAutotiler } from '../helpers/PathAutoTiler'
+import { FenceRenderer } from '../helpers/FenceRenderer'
 
 // ─── Depth constants ────────────────────────────────────────────────────────
-const LAYER_BASE     =       0
-const LAYER_TERRAIN  =   1_000
-const LAYER_DECOR    =   5_000
-const LAYER_PLAYER   =  10_000
-const LAYER_OVERHEAD = 100_000
+export const LAYER_BASE     =       0
+export const LAYER_TERRAIN  =   1_000
+export const LAYER_DECOR    =   5_000
+export const LAYER_PLAYER   =  10_000
+export const LAYER_OVERHEAD = 100_000
 
 export class GameScene extends Phaser.Scene {
   // ── Layer groups ────────────────────────────────────────────────────────
   private terrainGroup!: Phaser.GameObjects.Group
   private decorGroup!: Phaser.GameObjects.Group
   private overheadGroup!: Phaser.GameObjects.Group
+
+  // ── Render Helper ───────────────────────────────────────────────────────────
+  private fenceRenderer!: FenceRenderer
 
   // ── Managers ────────────────────────────────────────────────────────────
   private localPlayer!: LocalPlayer
@@ -37,6 +41,8 @@ export class GameScene extends Phaser.Scene {
 
   // ── Depth tracking to avoid redundant setDepth calls ───────────────────
   private lastPlayerDepth = -1
+  private lastReportedTileX = -1
+  private lastReportedTileY = -1
 
   constructor() {
     super({ key: 'GameScene' })
@@ -75,6 +81,7 @@ export class GameScene extends Phaser.Scene {
     )
     this.localPlayer.sprite.setDepth(LAYER_PLAYER + this.localPlayer.sprite.y)
     this.lastPlayerDepth = LAYER_PLAYER + this.localPlayer.sprite.y
+    this.reportLocalTileIfChanged()
 
     this.cameras.main.setBounds(0, 0, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE)
     this.cameras.main.setZoom(calcZoom())
@@ -147,6 +154,7 @@ export class GameScene extends Phaser.Scene {
   // ── Update ──────────────────────────────────────────────────────────────
   update(_time: number, delta: number): void {
     this.localPlayer.update(COLLISION_MAP)
+    this.reportLocalTileIfChanged()
 
     // Only call setDepth when the player has actually moved to a new depth band.
     // Phaser's setDepth triggers a scene-graph dirty flag every call, so
@@ -203,6 +211,18 @@ export class GameScene extends Phaser.Scene {
       tileSize:  TILE_SIZE,
     })
 
+    const grassPathTiler = new PathAutotiler(this, {
+      sheetKey: 'grass-path',
+      insetKey: 'grass-path-inset',
+      tileSize: TILE_SIZE,
+    })
+
+    this.fenceRenderer = new FenceRenderer(this, {
+      sheetKey: 'fence',
+      tileSize: TILE_SIZE,
+      topOverlapHeight: 5, // Top 5 pixels go to overhead
+    })
+
     // Pass 1 — ground tiles (grass and sand; path is drawn in pass 2)
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
@@ -223,10 +243,15 @@ export class GameScene extends Phaser.Scene {
 
     // Pass 2 — path autotiling (single O(n) pass over the whole map)
     pathTiler.drawAll(rt, BASE_MAP, BASE.PATH)
+    grassPathTiler.drawAll(rt, BASE_MAP, BASE.GRASS_PATH)
+    
+    
+    this.fenceRenderer.renderAll(this.terrainGroup, this.overheadGroup)
 
     // PathAutotiler no longer holds live resources, but call destroy()
     // for forward-compatibility if it ever does again.
     pathTiler.destroy()
+    grassPathTiler.destroy()
   }
 
   // =========================================================================
@@ -259,10 +284,9 @@ export class GameScene extends Phaser.Scene {
     for (let y = 0; y < MAP_HEIGHT; y++) {
       for (let x = 0; x < MAP_WIDTH; x++) {
         const tile = TERRAIN_MAP[y][x]
-        if (tile === TERRAIN.TREE)       this.placeTallObject(x, y, 'tree',       0.5)
-        if (tile === TERRAIN.HOUSE)      this.placeTallObject(x, y, 'house',      0.5)
-        if (tile === TERRAIN.GREENHOUSE) this.placeTallObject(x, y, 'greenhouse', 0.2)
-        if (tile === TERRAIN.LAB)        this.placeTallObject(x, y, 'lab',        0.3)
+        if (tile === TERRAIN.TREE)       this.placeTallObject(x, y, 'tree',       2/3)
+        if (tile === TERRAIN.HOUSE)      this.placeTallObject(x, y, 'house',      1/3)
+        if (tile === TERRAIN.LAB)        this.placeTallObject(x, y, 'lab',        1/3)
       }
     }
   }
@@ -283,31 +307,40 @@ export class GameScene extends Phaser.Scene {
     key: string,
     splitFraction: number,
   ): void {
-    const texture  = this.textures.get(key).getSourceImage() as HTMLImageElement
-    const spriteH  = texture.height
-    const splitY   = Math.floor(spriteH * splitFraction)
+    const texture = this.textures.get(key).getSourceImage() as HTMLImageElement
+    const spriteW = texture.width
+    const spriteH = texture.height
 
+    // Calculate the anchor point in pixels (lower-left corner of the anchor tile)
     const anchorPx = anchorTileX * TILE_SIZE
     const anchorPy = (anchorTileY + 1) * TILE_SIZE
 
-    // ── Lower half — Y-sorted ──
+    // Calculate where to split the sprite
+    const splitY = Math.floor(spriteH * splitFraction)
+
+    // Trees at the top edge (y < 2) don't need splitting since nothing can be above them
+    if (anchorTileY < 2) {
+      const wholeTree = this.add.image(anchorPx, anchorPy, key)
+      wholeTree.setOrigin(0, 1) // Lower-left origin
+      wholeTree.setDepth(LAYER_BASE + anchorPy)
+      this.terrainGroup.add(wholeTree)
+      return
+    }
+
+    // ── Lower half — Y-sorted (players can walk in front) ──
     const lower = this.add.image(anchorPx, anchorPy, key)
-    lower.setOrigin(0, 1)
-    lower.setDepth(LAYER_TERRAIN + anchorPy)
+    lower.setOrigin(0, 1) // Lower-left origin
+    lower.setDepth(LAYER_BASE + anchorPy - 50)
+    lower.setCrop(0, splitY, spriteW, spriteH - splitY)
     this.terrainGroup.add(lower)
 
-    // ── Upper half — overhead ──
-    // Draw only the top `splitY` pixels of the source texture as a crop.
-    // We use a Phaser Image with a custom crop instead of a RenderTexture
-    // so no extra GPU texture is allocated.
-    const spriteTopY = anchorPy - spriteH
-    const upper = this.add.image(anchorPx, spriteTopY, key)
-    upper.setOrigin(0, 0)
-    upper.setCrop(0, 0, texture.width, splitY)
+    // ── Upper half — overhead (players walk behind) ──
+    const upper = this.add.image(anchorPx, anchorPy - spriteH, key)
+    upper.setOrigin(0, 0) // Upper-left origin
+    upper.setCrop(0, 0, spriteW, splitY)
     upper.setDepth(LAYER_OVERHEAD + anchorPy)
     this.overheadGroup.add(upper)
   }
-
   // =========================================================================
   // LAYER 2 — Decor (ledges, water edges, bushes, ladders)
   // =========================================================================
@@ -324,8 +357,21 @@ export class GameScene extends Phaser.Scene {
         if (tile === DECOR.FLOWER_BUSH) {
           const bush = this.add.image(px, py, 'flower_bush')
           bush.setOrigin(0.5, 0.5)
-          bush.setDepth(depth)
+          bush.setDepth(LAYER_BASE + py)
           this.decorGroup.add(bush)
+          continue
+        }
+
+        if (tile === DECOR.NAME) {
+          const name = this.add.image(px, py, 'name')
+          name.setOrigin(0.5, 0.5)
+          name.setDepth(LAYER_BASE + py)
+          this.decorGroup.add(name)
+          continue
+        }
+
+        if (tile === DECOR.WILD_GRASS) {
+          this.placeTallDecor(x, y, 'wild_grass', 0.5, 8) // Split at 50%
           continue
         }
 
@@ -375,14 +421,86 @@ export class GameScene extends Phaser.Scene {
       case DECOR.LADDER_TOP:    key = 'ladder-top';    break
       case DECOR.LADDER_MIDDLE: key = 'ladder-side';   break
       case DECOR.LADDER_BOTTOM: key = 'ladder-bottom'; break
+
+      case DECOR.FLOWER_PINK:   key = 'flower-pink';   break
+      case DECOR.FLOWER_ORANGE: key = 'flower-orange'; break
+      case DECOR.FLOWER_WHITE:  key = 'flower-white';  break
+
+      default: break
     }
 
     return { key, flipX, flipY }
   }
 
+  /**
+   * Places a tall decor sprite (like wild grass) split into lower and upper portions
+   * 
+   * @param tileX - Tile X coordinate
+   * @param tileY - Tile Y coordinate
+   * @param key - Texture key
+   * @param splitFraction - Where to split the sprite (0-1, 0.5 = middle)
+   * @param verticalOffset - Pixels to shift the entire sprite up/down (negative = up, positive = down)
+   */
+  private placeTallDecor(
+    tileX: number,
+    tileY: number,
+    key: string,
+    splitFraction: number = 0.5,
+    verticalOffset: number = 0, // Pixels to shift the sprite vertically
+  ): void {
+    const texture = this.textures.get(key).getSourceImage() as HTMLImageElement
+    const spriteW = texture.width
+    const spriteH = texture.height
+
+    // Tile position (center of tile)
+    const tileCenterX = tileX * TILE_SIZE + TILE_SIZE / 2
+    const tileBottomY = (tileY + 1) * TILE_SIZE // Bottom of the tile
+    
+    // Calculate where to split the sprite (in pixels from top)
+    const splitY = Math.floor(spriteH * splitFraction)
+    
+    // Calculate vertical position - anchor the bottom of the sprite to the tile bottom
+    // Then apply the vertical offset
+    const spriteBottomY = tileBottomY + verticalOffset
+    
+    // Lower half (bottom part) - anchored at bottom of tile
+    const lower = this.add.image(tileCenterX, spriteBottomY, key)
+    lower.setOrigin(0.5, 1) // Origin at bottom-center
+    lower.setCrop(0, splitY, spriteW, spriteH - splitY)
+    lower.setDepth(LAYER_BASE + spriteBottomY - 1)
+    this.decorGroup.add(lower)
+    
+    // Only create upper half if there's something to show (splitY > 0)
+    if (splitY > 0){
+      const upper = this.add.image(tileCenterX, spriteBottomY - (spriteH - splitY) - 8, key)
+      upper.setOrigin(0.5, 0) // Origin at top-center
+      upper.setCrop(0, 0, spriteW, splitY)
+      upper.setDepth(LAYER_BASE + spriteBottomY - 50)
+      this.overheadGroup.add(upper)
+    }
+      
+  }
+
   // =========================================================================
   // Helpers
   // =========================================================================
+  private reportLocalTileIfChanged(): void {
+    const tileX = this.localPlayer.getTileX()
+    const tileY = this.localPlayer.getTileY()
+    if (tileX === this.lastReportedTileX && tileY === this.lastReportedTileY) return
+
+    this.lastReportedTileX = tileX
+    this.lastReportedTileY = tileY
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { useGameStore } = require('@/store/gameStore')
+      useGameStore.getState().setPlayerTile(tileX, tileY)
+    } catch {
+      // Store not available yet
+    }
+  }
+
   private sendJoin(): void {
     if (this.joined) return
     try {

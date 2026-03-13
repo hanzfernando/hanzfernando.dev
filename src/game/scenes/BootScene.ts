@@ -35,7 +35,6 @@ export class BootScene extends Phaser.Scene {
     this.load.image('grass-2', '/pixel/grass-2.png')
     this.load.image('tree', '/pixel/pine_tree.png')
     this.load.image('house', '/pixel/house-1.png')
-    this.load.image('greenhouse', '/pixel/greenhouse.png')
     this.load.image('flower_bush', '/pixel/flower_bush-2.png')
     this.load.image('sand', '/pixel/sand.png')
     this.load.image('water', '/pixel/water.png')
@@ -54,7 +53,15 @@ export class BootScene extends Phaser.Scene {
     this.load.image('lab', '/pixel/building/lab.png')
     this.load.spritesheet('path-sheet', '/pixel/tile-path/tile-path-1.png',  { frameWidth: 16, frameHeight: 16 })
     this.load.spritesheet('path-inset', '/pixel/tile-path/tile-path-inset.png', { frameWidth: 16, frameHeight: 16 })
-
+    this.load.spritesheet('grass-path-inset', '/pixel/tile-path/grass-path-inset.png', { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('grass-path', '/pixel/tile-path/grass-path.png', { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('flower-tiles', '/pixel/decor/flower-tile.png', { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('fence', '/pixel/decor/fence.png', { frameWidth: 16, frameHeight: 16 })
+    this.load.image('name', '/pixel/decor/hanz.png')
+    this.load.image('flower-pink', '/pixel/decor/flower-pink.png')
+    this.load.image('flower-orange', '/pixel/decor/flower-orange.png')
+    this.load.image('flower-white', '/pixel/decor/flower-white.png')
+    this.load.image('wild_grass', '/pixel/decor/wild-grass.png')
     // Helper to measure an image before Phaser loads it
     const getImageSize = (url: string): Promise<{ w: number; h: number }> =>
       new Promise((resolve) => {
