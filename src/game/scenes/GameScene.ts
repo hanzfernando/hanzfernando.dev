@@ -13,6 +13,7 @@ import type { ServerMessage } from '@/types/ws-protocol'
 import { DECOR, DECOR_MAP } from '../map/decorData'
 import { PathAutotiler } from '../helpers/PathAutoTiler'
 import { FenceRenderer } from '../helpers/FenceRenderer'
+import { WaterBorderRenderer } from '../helpers/WaterBorderRenderer'
 
 // ─── Depth constants ────────────────────────────────────────────────────────
 export const LAYER_BASE     =       0
@@ -217,6 +218,20 @@ export class GameScene extends Phaser.Scene {
       tileSize: TILE_SIZE,
     })
 
+    // In GameScene.ts renderBaseLayer:
+    const waterBorderRenderer = new WaterBorderRenderer(
+      this, 
+      'water-border', // 3x3 for edges
+      'water-corner',       // 2x2 for inset/peninsula
+      TILE_SIZE
+    );
+
+    // In renderBaseLayer(), after creating the waterBorderRenderer:
+    console.log('Textures loaded:', {
+      'water-border': this.textures.exists('water-border'),
+      'water-corner': this.textures.exists('water-corner')
+    });
+
     this.fenceRenderer = new FenceRenderer(this, {
       sheetKey: 'fence',
       tileSize: TILE_SIZE,
@@ -240,6 +255,8 @@ export class GameScene extends Phaser.Scene {
         rt.drawFrame(key, undefined, x * TILE_SIZE, y * TILE_SIZE)
       }
     }
+
+    waterBorderRenderer.renderAll(rt, BASE_MAP)
 
     // Pass 2 — path autotiling (single O(n) pass over the whole map)
     pathTiler.drawAll(rt, BASE_MAP, BASE.PATH)

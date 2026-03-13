@@ -265,5 +265,5 @@ export function generateWaterEdges(
 }
 
 // Run generators — order matters: water edges first, then ledges on top
-generateWaterEdges(BASE_MAP, DECOR_MAP)
+// generateWaterEdges(BASE_MAP, DECOR_MAP)
 generateLedges(TERRAIN_MAP, BASE_MAP, DECOR_MAP)
