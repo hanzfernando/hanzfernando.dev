@@ -40,4 +40,5 @@ export const GameEvents = {
   MOBILE_MOVE: 'mobile-move',
   MOBILE_INTERACT: 'mobile-interact',
   TOUCH_MOVE_TO: 'touch-move-to',
+  TELEPORT_TO: 'teleport-to',
 } as const

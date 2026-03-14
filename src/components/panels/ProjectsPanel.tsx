@@ -13,23 +13,33 @@ export default function ProjectsPanel({ onClose }: ProjectsPanelProps) {
 
   return (
     <PanelBase title="Projects" onClose={onClose}>
-      <div className="space-y-5 text-[11px] text-slate-800">
-        <div className="rounded-md border-2 border-[#2e4b8b] bg-[#fffdf4] px-4 py-3 shadow-[inset_0_-2px_0_#e6dec5]">
-          <p className="text-[13px] leading-relaxed">
-            Built projects across full-stack web, Android, and real-time dashboards...
-          </p>
-          <p className="mt-1.5 text-[13px] font-medium text-[#35508e]">
-            Featured: {featuredProjects.length} / {projects.length}
-          </p>
+      <div className="space-y-5 text-[#202f42]">
+        {/* Banner */}
+        <div className="retro-card flex items-center justify-between gap-3 px-4 py-3">
+          <div>
+            <p className="text-[12px] leading-relaxed md:text-[13px]">
+              Built projects across full-stack web, Android, and real-time dashboards...
+            </p>
+            <p className="mt-2 text-[12px] font-semibold text-[#234978] md:text-[13px]">
+              Featured: {featuredProjects.length} / {projects.length}
+            </p>
+          </div>
+          <div className="retro-chip pixel-font flex-shrink-0 px-3 py-2 text-center text-[8px] leading-relaxed">
+            {featuredProjects.length} / {projects.length}
+            <br />
+            FEATURED
+          </div>
         </div>
 
+        {/* Grid */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {projects.map((project) => (
             <article
               key={project.id}
-              className="group overflow-hidden rounded-md border-2 border-[#325392] bg-[#fffef7] shadow-[0_3px_0_#213a6f] transition-transform duration-200 hover:-translate-y-0.5"
+              className="retro-card group flex flex-col overflow-hidden transition-transform duration-200 hover:-translate-y-1"
             >
-              <div className="relative h-40 w-full overflow-hidden border-b-2 border-[#325392] bg-[#dbe6ff]">
+              {/* Thumbnail */}
+              <div className="relative h-40 w-full overflow-hidden border-b-2 border-[#111827] bg-[#dbe6ff]">
                 <Image
                   src={project.thumbnail}
                   alt={`${project.title} preview`}
@@ -39,62 +49,65 @@ export default function ProjectsPanel({ onClose }: ProjectsPanelProps) {
                   height={200}
                 />
                 {project.isFeatured && (
-                  <span className="pixel-font absolute left-2 top-2 rounded-sm border border-[#8d6f19] bg-[#f6ca4c] px-1.5 py-0.5 text-[8px] uppercase tracking-wide text-[#4a390b]">
-                    Featured
+                  <span className="pixel-font absolute left-2 top-2 border-2 border-[#111827] bg-[#f0c34f] px-1.5 py-0.5 text-[7px] uppercase tracking-wide text-[#3d2f11] shadow-[2px_2px_0_#0e1724]">
+                    ★ Featured
                   </span>
                 )}
               </div>
 
-              <div className="space-y-3 p-3">
+              {/* Body */}
+              <div className="flex flex-1 flex-col gap-3 p-3">
                 <div>
-                  <h3 className="line-clamp-2 text-base font-semibold text-[#1d325f]">{project.title}</h3>
-                  <p className="mt-1 line-clamp-3 text-[12px] leading-relaxed text-slate-700">
+                  <h3 className="line-clamp-2 text-[14px] font-semibold text-[#1e3553]">
+                    {project.title}
+                  </h3>
+                  <p className="mt-1 line-clamp-3 text-[12px] leading-relaxed text-[#33475b]">
                     {project.shortDescription}
                   </p>
                 </div>
 
+                {/* Tech badges */}
                 <div className="flex flex-wrap gap-1.5">
                   {project.tags.map((tagUrl, index) => (
-                    <picture
-                      key={`${project.id}-tag-${index}`}>
+                    <picture key={`${project.id}-tag-${index}`}>
                       <img
                         src={tagUrl}
                         alt="Tech badge"
-                        className="h-5 w-auto rounded-sm border border-[#d8d8d8] bg-white"
+                        className="h-5 w-auto border-2 border-[#111827] bg-white"
                         loading="lazy"
                         width={50}
                         height={20}
                       />
                     </picture>
-
                   ))}
-
                 </div>
 
-                <div>
-                  <h4 className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-[#35508e]">
+                {/* Learning points */}
+                <div className="flex-1">
+                  <h4 className="pixel-font mb-1.5 text-[7.5px] uppercase tracking-wide text-[#2c4d76]">
                     What I Learned
                   </h4>
-                  <ul className="list-disc space-y-1 pl-4 text-[12px] leading-relaxed text-slate-700">
+                  <ul className="list-disc space-y-1 pl-4 text-[11px] leading-relaxed text-[#33475b]">
                     {project.learningPoints.slice(0, 3).map((point, pointIndex) => (
                       <li key={`${project.id}-point-${pointIndex}`}>{point}</li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="border-t border-[#cad7f6] pt-2">
+                {/* CTA */}
+                <div className="border-t-2 border-[#111827] bg-gradient-to-b from-[#f5ebcc] to-[#ede0b0] -mx-3 -mb-3 px-3 py-2.5">
                   {project.link ? (
                     <a
                       href={project.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex rounded-sm border border-[#28437f] bg-[#3f63b5] px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-[#3557a3]"
+                      className="retro-btn pixel-font inline-flex px-3 py-1.5 text-[8px] uppercase"
                     >
                       View Project
                     </a>
                   ) : (
-                    <span className="inline-flex rounded-sm border border-[#b6bcc9] bg-[#edf0f7] px-2.5 py-1 text-[11px] text-slate-600">
-                      Private / Internal
+                    <span className="inline-flex border-2 border-[#111827] bg-gradient-to-b from-[#d7dfec] to-[#c2cede] px-2.5 py-1 text-[11px] text-[#445669] shadow-[2px_2px_0_#0e1724]">
+                      🔒 Private / Internal
                     </span>
                   )}
                 </div>

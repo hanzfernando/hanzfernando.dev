@@ -28,6 +28,7 @@ export class LocalPlayer {
   private lastMobileDirection: 'up' | 'down' | 'left' | 'right' | null = null
   private pathQueue: Array<'up' | 'down' | 'left' | 'right'> = []
   private static readonly VERTICAL_OFFSET = -2;
+  private teleportAnimInProgress = false
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys
   private wasd: {
@@ -78,6 +79,83 @@ export class LocalPlayer {
     EventBus.on(GameEvents.TOUCH_MOVE_TO, (payload: unknown) => {
       const { tileX, tileY } = payload as { tileX: number; tileY: number }
       this.pathQueue = this.computePath(this._tileX, this._tileY, tileX, tileY)
+    })
+
+    // Instant teleport used by HUD quick menu actions.
+    EventBus.on(GameEvents.TELEPORT_TO, (payload: unknown) => {
+      const { tileX, tileY } = payload as { tileX: number; tileY: number }
+      if (!Number.isFinite(tileX) || !Number.isFinite(tileY)) return
+
+      const rows = COLLISION_MAP.length
+      const cols = COLLISION_MAP[0].length
+      if (tileX < 0 || tileX >= cols || tileY < 0 || tileY >= rows) return
+      if (COLLISION_MAP[tileY][tileX] === 1) return
+      if (this.teleportAnimInProgress) return
+
+      this.pathQueue = []
+      this._isMoving = false
+
+      const dirs: Array<'left' | 'down' | 'up' | 'right'> = ['left', 'down', 'up', 'right']
+
+      const spins = 12 // 2 full rotations
+      const totalFrames = spins
+      const minDelay = 40
+      const maxDelay = 140
+
+      this.teleportAnimInProgress = true
+      this._isMoving = true
+
+      let elapsed = 0
+
+      // ease curve helper
+      const easeIn = (t: number) => t * t
+      const easeOut = (t: number) => 1 - Math.pow(1 - t, 2)
+
+      for (let i = 0; i < totalFrames; i++) {
+        const t = i / totalFrames
+
+        const delay =
+          i < totalFrames / 2
+            ? maxDelay - (maxDelay - minDelay) * easeIn(t * 2) // speed up
+            : minDelay + (maxDelay - minDelay) * easeOut((t - 0.5) * 2) // slow down
+
+        elapsed += delay
+
+        this.scene.time.delayedCall(elapsed, () => {
+          const dir = dirs[i % dirs.length]
+          this._direction = dir
+          this.sprite.play(`${this.sheetKey}-idle-${dir}`, true)
+        })
+      }
+
+      // teleport at the midpoint
+      const teleportTime = elapsed / 2
+
+      this.scene.time.delayedCall(teleportTime, () => {
+        this._tileX = tileX
+        this._tileY = tileY
+
+        const targetPx = tileX * TILE_SIZE + TILE_SIZE / 2
+        const targetPy = tileY * TILE_SIZE + TILE_SIZE / 2 + LocalPlayer.VERTICAL_OFFSET
+
+        this.sprite.setPosition(targetPx, targetPy)
+      })
+
+      this.scene.time.delayedCall(elapsed, () => {
+        this._direction = 'down'
+        this.sprite.play(`${this.sheetKey}-idle-down`, true)
+
+        this._isMoving = false
+        this.teleportAnimInProgress = false
+
+        this.throttle?.push({
+          x: this._tileX,
+          y: this._tileY,
+          direction: this._direction,
+          isMoving: false,
+        })
+        this.throttle?.tick()
+      })
     })
   }
 
@@ -285,6 +363,7 @@ export class LocalPlayer {
   destroy(): void {
     EventBus.off(GameEvents.MOBILE_MOVE)
     EventBus.off(GameEvents.TOUCH_MOVE_TO)
+    EventBus.off(GameEvents.TELEPORT_TO)
     this.sprite.destroy()
   }
 }

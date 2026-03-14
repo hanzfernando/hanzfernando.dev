@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type PanelType = 'about' | 'projects' | 'contact' | 'career' | null
+export type PanelType = 'about' | 'projects' | 'resume' | 'contact' | 'career' | null
 export type GamePhase = 'title' | 'character-select' | 'playing'
 
 export interface ChatMessage {

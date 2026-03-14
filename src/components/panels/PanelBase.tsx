@@ -22,25 +22,29 @@ export default function PanelBase({ title, onClose, children }: PanelBaseProps) 
   }, [handleKeyDown])
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-2 md:px-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/55" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#0a1322]/70 backdrop-blur-[1px]" onClick={onClose} />
 
       {/* Panel */}
-      <div className="poke-window poke-soft-pattern relative z-10 mx-4 flex max-h-[84vh] w-full max-w-6xl flex-col rounded-md border-4 shadow-[0_10px_0_#172548,0_18px_30px_rgba(0,0,0,0.38)]">
+      <div className="retro-panel retro-scanlines float-fade-in relative z-10 flex max-h-[86vh] w-full max-w-6xl flex-col overflow-hidden">
         {/* Header */}
-        <div className="poke-window-header flex items-center justify-between border-b-2 border-[#1a2c58] px-4 py-2.5">
-          <h2 className="pixel-font text-[12px] uppercase tracking-wide text-white">{title}</h2>
+        <div className="retro-panel-header flex items-center justify-between px-4 py-2.5 md:px-5 md:py-3">
+          <h2 className="pixel-font text-[10px] uppercase tracking-wide text-white md:text-[11px]">
+            {title}
+          </h2>
           <button
-            className="rounded border border-[#efdac4] bg-[#c74f4f] px-3 py-1 text-[13px] font-semibold text-white transition-colors hover:bg-[#b44343]"
+            className="retro-btn retro-btn-danger pixel-font px-2.5 py-1 text-[9px] uppercase"
             onClick={onClose}
           >
-            ✕
+            ✕ Close
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-5 text-slate-800 md:p-6">{children}</div>
+        <div className="flex-1 overflow-y-auto p-4 text-[13px] text-[#1b2735] md:p-6">
+          {children}
+        </div>
       </div>
     </div>
   )

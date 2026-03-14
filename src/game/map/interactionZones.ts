@@ -42,21 +42,13 @@ export const INTERACTION_ZONES: InteractionZone[] = [
     id: 'mailbox',
     type: 'contact',
     label: 'Contact [E]',
-    tiles: [{ x: 8, y: 11 }],
+    tiles: [{ x: 8, y: 12 }],
   },
   {
     id: 'north-path',
     type: 'career',
-    label: 'Route 101 [E]',
+    label: 'My Career [E]',
     // centered three-column gap at top of collision map (matches provided collisionData)
-    tiles: [
-      { x: 18, y: 0 },
-      { x: 19, y: 0 },
-      { x: 20, y: 0 },
-      { x: 18, y: 1 },
-      { x: 19, y: 1 },
-      { x: 20, y: 1 },
-      
-    ],
+    tiles: rect(0, 13, 5, 17),
   },
 ]
