@@ -24,7 +24,7 @@ const PhaserGame = dynamic(() => import('@/components/PhaserGame'), {
 export default function Home() {
   const { activePanel, closePanel, gamePhase } = useGameStore()
   return (
-    <div className="w-full max-w-7xl mx-auto h-screen bg-black overflow-hidden relative">
+    <div className="w-full max-w-[1440px] mx-auto h-screen bg-black overflow-hidden relative">
       <div className="absolute inset-0">
         {gamePhase === 'playing' && (
           <>
