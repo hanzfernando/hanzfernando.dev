@@ -65,7 +65,11 @@ export default function HUD() {
 
   const handleMenuAction = (action: MenuAction) => {
     setIsMenuOpen(false)
-    if (action === 'title') { resetToTitle(); return }
+    if (action === 'title') {
+      EventBus.emit(GameEvents.BACK_TO_TITLE)
+      resetToTitle()
+      return
+    }
     if (action === 'resume') { openPanel('resume'); return }
     const target = menuTeleportTargets[action]
     EventBus.emit(GameEvents.TELEPORT_TO, target);

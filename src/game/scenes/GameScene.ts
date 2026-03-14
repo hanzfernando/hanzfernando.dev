@@ -148,6 +148,10 @@ export class GameScene extends Phaser.Scene {
       this.sendJoin()
     })
 
+    EventBus.on(GameEvents.BACK_TO_TITLE, () => {
+      this.wsManager.disconnect()
+    })
+
     this.sendJoin()
     EventBus.emit(GameEvents.SCENE_READY)
     this.scene.launch('UIScene')
@@ -182,6 +186,7 @@ export class GameScene extends Phaser.Scene {
     EventBus.off(GameEvents.CHAT_SENT)
     EventBus.off(GameEvents.CHAT_FOCUS)
     EventBus.off(GameEvents.USERNAME_SET)
+    EventBus.off(GameEvents.BACK_TO_TITLE)
     this.wsManager.disconnect()
     this.chatBubbleManager.destroy()
     this.interactionManager.destroy()
