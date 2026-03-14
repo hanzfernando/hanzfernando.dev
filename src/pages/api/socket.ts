@@ -5,6 +5,7 @@ import type { Socket } from 'net'
 import { WebSocketServer, WebSocket } from 'ws'
 import { RoomManager } from '@/server/roomManager'
 import { RateLimiter } from '@/server/rateLimit'
+import { applyApiRateLimit } from '@/server/httpRateLimit'
 import type { ClientMessage } from '@/types/ws-protocol'
 
 interface ExtendedServer extends HTTPServer {
@@ -133,6 +134,10 @@ function setupWSS(server: ExtendedServer): void {
 }
 
 export default function handler(_req: NextApiRequest, res: NextApiResponse): void {
+  if (!applyApiRateLimit(_req, res, { maxRequests: 30, windowMs: 60_000 }, 'socket-bootstrap')) {
+    return
+  }
+
   const socket = res.socket as SocketWithServer | null
   if (socket?.server) {
     setupWSS(socket.server)
