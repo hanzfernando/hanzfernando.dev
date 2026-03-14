@@ -5,6 +5,7 @@ import { useGameStore } from '@/store/gameStore'
 import ChatPanel from '@/components/ChatPanel'
 import HUD from '@/components/HUD'
 import StartScreen from '@/components/StartScreen'
+import MusicPlayer from '@/components/MusicPlayer'
 import AboutPanel from '@/components/panels/AboutPanel'
 import ProjectsPanel from '@/components/panels/ProjectsPanel'
 import ContactPanel from '@/components/panels/ContactPanel'
@@ -28,6 +29,7 @@ export default function Home() {
         {gamePhase === 'playing' && (
           <>
             <PhaserGame />
+            <MusicPlayer />
             <HUD />
             <ChatPanel />
             {activePanel === 'about' && <AboutPanel onClose={closePanel} />}
