@@ -9,39 +9,30 @@ import AboutPanel from '@/components/panels/AboutPanel'
 import ProjectsPanel from '@/components/panels/ProjectsPanel'
 import ContactPanel from '@/components/panels/ContactPanel'
 import CareerPanel from '@/components/panels/CareerPanel'
+import ResumePanel from '@/components/panels/ResumePanel'
 
 const PhaserGame = dynamic(() => import('@/components/PhaserGame'), {
   ssr: false,
   loading: () => (
-    <div
-      className="flex h-full w-full items-center justify-center bg-black"
-    >
-      <p className="text-xs text-white">Loading...</p>
+    <div className="retro-pixel-surface flex h-full w-full items-center justify-center">
+      <p className="pixel-font text-[10px] uppercase text-[#1d3553]">Loading...</p>
     </div>
   ),
 })
 
 export default function Home() {
   const { activePanel, closePanel, gamePhase } = useGameStore()
-
   return (
-    <div className="w-screen h-screen bg-black overflow-hidden flex items-center justify-center">
-      {/* 4:3 game viewport — all overlays are positioned relative to this */}
-      <div
-        className="relative"
-        style={{
-          width: 'min(100vw, calc(100vh * 4 / 3))',
-          height: 'min(100vh, calc(100vw * 3 / 4))',
-        }}
-      >
+    <div className="relative mx-auto h-screen w-full max-w-[1440px] overflow-hidden border-x-4 border-[#111827] bg-[#0f2540] shadow-[0_0_0_4px_#213f66]">
+      <div className="absolute inset-0">
         {gamePhase === 'playing' && (
           <>
             <PhaserGame />
             <HUD />
             <ChatPanel />
-
             {activePanel === 'about' && <AboutPanel onClose={closePanel} />}
             {activePanel === 'projects' && <ProjectsPanel onClose={closePanel} />}
+            {activePanel === 'resume' && <ResumePanel onClose={closePanel} />}
             {activePanel === 'contact' && <ContactPanel onClose={closePanel} />}
             {activePanel === 'career' && <CareerPanel onClose={closePanel} />}
           </>

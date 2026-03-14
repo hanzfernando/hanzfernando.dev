@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useGameStore } from '@/store/gameStore'
+import { overlayLayout } from '@/components/overlayLayout'
 
 export default function ChatPanel() {
   const [isOpen, setIsOpen] = useState(false)
@@ -80,18 +81,18 @@ export default function ChatPanel() {
   }, [inputActive, activePanel, openInput, closeInput])
 
   return (
-    <div className="absolute top-9 left-3 z-40 flex flex-col items-start">
+    <div className={`absolute ${overlayLayout.chatAnchor} z-40 flex flex-col items-start`}>
       {/* Toggle button with unread badge */}
       <div className="relative">
         <button
-          className="w-7 h-7 bg-black/60 border border-white/20 text-sm flex items-center justify-center hover:bg-black/80 transition-colors select-none"
+          className="retro-btn flex h-8 w-8 items-center justify-center text-[13px] select-none"
           onClick={togglePanel}
           title="Toggle Chat (Enter)"
         >
           💬
         </button>
         {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 min-w-[14px] h-[14px] bg-red-500 rounded-full text-[9px] text-white flex items-center justify-center px-px font-bold leading-none">
+          <div className="pixel-font absolute -right-2 -top-2 flex h-[16px] min-w-[16px] items-center justify-center border-2 border-[#111827] bg-[#d14545] px-[2px] text-[8px] leading-none text-white shadow-[2px_2px_0_#0e1724]">
             {unreadCount > 9 ? '9+' : unreadCount}
           </div>
         )}
@@ -99,16 +100,16 @@ export default function ChatPanel() {
 
       {/* Chat panel — expands downward from the icon */}
       {isOpen && (
-        <div className="mt-1 w-52 bg-black/75 border border-white/20 flex flex-col">
+        <div className="pixel-font retro-pixel-surface float-fade-in mt-2 flex w-[min(16rem,calc(100vw-1.5rem))] flex-col">
           {/* Messages history */}
-          <div className="h-32 overflow-y-auto p-1.5 flex flex-col gap-0.5">
+          <div className="h-40 overflow-y-auto p-2 text-[11px] flex flex-col gap-1">
             {chatMessages.length === 0 ? (
-              <span className="text-white/30 text-xs italic">No messages yet...</span>
+              <span className="text-[#4c5d70] italic">No messages yet...</span>
             ) : (
               chatMessages.map((msg, i) => (
-                <div key={i} className="text-xs text-white leading-snug break-words">
-                  <span className="text-yellow-300 font-semibold">{msg.username}</span>
-                  <span className="text-white/50">: </span>
+                <div key={i} className="leading-snug break-words text-[#1d2b3a]">
+                  <span className="pixel-font text-[9px] text-[#2c4f7a]">{msg.username}</span>
+                  <span className="text-[#5b6c80]">: </span>
                   <span>{msg.message}</span>
                 </div>
               ))
@@ -118,10 +119,10 @@ export default function ChatPanel() {
 
           {/* Input row */}
           {inputActive ? (
-            <div className="flex border-t border-white/20">
+            <div className="flex border-t-2 border-[#111827] bg-[#f8eed0]">
               <input
                 ref={inputRef}
-                className="flex-1 min-w-0 bg-transparent px-2 py-1 text-xs text-white outline-none placeholder-white/30"
+                className="retro-input h-9 min-w-0 flex-1 px-2 py-1 text-[11px]"
                 maxLength={100}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
@@ -133,15 +134,15 @@ export default function ChatPanel() {
                 placeholder="Type a message..."
               />
               <button
-                className="px-2 py-1 text-xs text-white/60 hover:text-white border-l border-white/20 hover:bg-white/10 transition-colors"
+                className="retro-btn border-l-2 border-[#111827] px-3 py-1 text-[11px]"
                 onClick={handleSend}
               >
-                ↵
+                Send
               </button>
             </div>
           ) : (
             <button
-              className="border-t border-white/20 px-2 py-1 text-xs text-white/30 hover:text-white/60 text-left transition-colors"
+              className="pixel-font border-t-2 border-[#111827] bg-[#f8eed0] px-2 py-2 text-left text-[9px] text-[#27466f]"
               onClick={openInput}
             >
               Enter to chat

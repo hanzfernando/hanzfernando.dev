@@ -31,6 +31,7 @@ class SimpleEventEmitter {
 export const EventBus = new SimpleEventEmitter()
 
 export const GameEvents = {
+  BACK_TO_TITLE: 'back-to-title',
   INTERACTION: 'interaction',
   CHAT_SENT: 'chat-sent',
   CHAT_FOCUS: 'chat-focus',
@@ -39,4 +40,6 @@ export const GameEvents = {
   // Mobile / on-screen controls
   MOBILE_MOVE: 'mobile-move',
   MOBILE_INTERACT: 'mobile-interact',
+  TOUCH_MOVE_TO: 'touch-move-to',
+  TELEPORT_TO: 'teleport-to',
 } as const

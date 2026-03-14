@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { CHAR_COUNT, MOVE_DURATION_MS } from '../constants'
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -30,22 +31,54 @@ export class BootScene extends Phaser.Scene {
     })
 
     // Load static assets
-    this.load.image('grass', '/pixel/grass.png')
-    this.load.image('tree', '/pixel/tree.png')
-    this.load.image('house', '/pixel/house.png')
+    this.load.image('grass-1',  '/pixel/base-tiles/grass-1.png')
+    this.load.image('grass-2',  '/pixel/base-tiles/grass-2.png')
+    this.load.image('sand',     '/pixel/base-tiles/sand.png')
+    this.load.image('water',    '/pixel/base-tiles/water.png')
 
+    this.load.image('tree',     '/pixel/structures/pine_tree.png')
+    this.load.image('house',    '/pixel/structures/house-1.png')
+    this.load.image('lab',      '/pixel/structures/lab.png')
+
+
+    this.load.image('ladder-top',     '/pixel/ladder/ladder-top.png')
+    this.load.image('ladder-middle',  '/pixel/ladder/ladder-middle.png')
+    this.load.image('ladder-bottom',  '/pixel/ladder/ladder-bottom.png')  
+
+    this.load.image('mailbox',        '/pixel/decor/mailbox.png')
+    this.load.image('name',           '/pixel/decor/hanz.png')
+    this.load.image('flower-pink',    '/pixel/decor/flower-pink.png')
+    this.load.image('flower-orange',  '/pixel/decor/flower-orange.png')
+    this.load.image('flower-white',   '/pixel/decor/flower-white.png')
+    this.load.image('wild_grass',     '/pixel/decor/wild-grass.png')
+    this.load.image('flower_bush',    '/pixel/decor/flower_bush-2.png')
+
+    this.load.spritesheet('ledge',              '/pixel/ledge/ledge.png',  { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('ledge-inset',        '/pixel/ledge/ledge-inset.png',  { frameWidth: 16, frameHeight: 16 })
+
+    this.load.spritesheet('water-corner',       '/pixel/water/water-corner.png',  { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('water-border',       '/pixel/water/water-border.png',  { frameWidth: 16, frameHeight: 16 })
+
+    this.load.spritesheet('path-sheet',         '/pixel/tile-path/tile-path-1.png',  { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('path-inset',         '/pixel/tile-path/tile-path-inset.png', { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('grass-path-inset',   '/pixel/tile-path/grass-path-inset.png', { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('grass-path',         '/pixel/tile-path/grass-path.png', { frameWidth: 16, frameHeight: 16 })
+
+    this.load.spritesheet('flower-tiles',       '/pixel/decor/flower-tiles.png', { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('fence',              '/pixel/decor/fence.png', { frameWidth: 16, frameHeight: 16 })
+   
     // Helper to measure an image before Phaser loads it
     const getImageSize = (url: string): Promise<{ w: number; h: number }> =>
       new Promise((resolve) => {
         const img = new Image()
         img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight })
-        img.onerror = () => resolve({ w: 64, h: 88 }) // fallback: 16×22 per frame at 4×4
+        img.onerror = () => resolve({ w: 64, h: 96 }) // fallback: 16×24 per frame at 4×4
         img.src = url
       })
 
     // Load all 4 character spritesheets, auto-sizing frames from image dimensions / 4×4
-    for (let i = 1; i <= 4; i++) {
-      const url = `/pixel/char-${i}-sprite.png`
+    for (let i = 1; i <= CHAR_COUNT; i++) {
+      const url = `/pixel/characters/char-${i}-sprite.png`
       const { w, h } = await getImageSize(url)
 
       this.load.spritesheet(`char-${i}-sheet`, url, {
@@ -56,17 +89,10 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Generate programmatic textures
-    this.generatePathTexture()
-    this.generatePlayerRemote()
-    this.generateMailbox()
-    this.generateLabWall()
-    this.generateLabRoof()
-
     // Create walk/idle animations for each character sheet
     const dirs = ['down', 'left', 'right', 'up'] as const
     const cols = 4
-    for (let charIdx = 1; charIdx <= 4; charIdx++) {
+    for (let charIdx = 1; charIdx <= CHAR_COUNT; charIdx++) {
       const sheetKey = `char-${charIdx}-sheet`
       for (let row = 0; row < dirs.length; row++) {
         const startFrame = row * cols
@@ -76,7 +102,7 @@ export class BootScene extends Phaser.Scene {
             start: startFrame,
             end: startFrame + cols - 1,
           }),
-          frameRate: 8,
+          frameRate: Math.round(1000 / MOVE_DURATION_MS * cols),  // was hardcoded 8
           repeat: -1,
         })
         this.anims.create({
@@ -88,55 +114,5 @@ export class BootScene extends Phaser.Scene {
     }
 
     this.scene.start('GameScene')
-  }
-
-  private generatePathTexture(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0xc4a265, 1)
-    g.fillRect(0, 0, 16, 16)
-    g.generateTexture('path-tile', 16, 16)
-    g.destroy()
-  }
-
-  private generatePlayerRemote(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0x4466aa, 1)
-    g.fillRect(1, 1, 14, 14)
-    g.lineStyle(1, 0x223366, 1)
-    g.strokeRect(1, 1, 14, 14)
-    g.fillStyle(0xffffff, 1)
-    g.fillCircle(8, 12, 2)
-    g.generateTexture('player-remote', 16, 16)
-    g.destroy()
-  }
-
-  private generateMailbox(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0x888888, 1)
-    g.fillRect(6, 8, 4, 8)
-    g.fillStyle(0x8b4513, 1)
-    g.fillRect(2, 2, 12, 8)
-    g.fillStyle(0xff3333, 1)
-    g.fillRect(13, 3, 2, 4)
-    g.generateTexture('mailbox-sprite', 16, 16)
-    g.destroy()
-  }
-
-  private generateLabWall(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0x7090a0, 1)
-    g.fillRect(0, 0, 16, 16)
-    g.lineStyle(1, 0x506070, 0.5)
-    g.strokeRect(0, 0, 16, 16)
-    g.generateTexture('lab-wall', 16, 16)
-    g.destroy()
-  }
-
-  private generateLabRoof(): void {
-    const g = this.add.graphics()
-    g.fillStyle(0x405060, 1)
-    g.fillRect(0, 0, 16, 16)
-    g.generateTexture('lab-roof', 16, 16)
-    g.destroy()
   }
 }

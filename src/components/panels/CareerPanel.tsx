@@ -8,42 +8,45 @@ interface CareerPanelProps {
 
 const experiences = [
   {
-    role: 'Full-Stack Developer',
-    company: 'Company A',
-    period: '2023 — Present',
-    description: 'Building scalable web applications with React and Node.js.',
+    role: 'Student',
+    company: 'Bataan Peninsula State University',
+    period: '2021 – 2025',
+    description: 'Graduated Magna Cum Laude at BPSU. 1st Runner-up in DICT Startup Challenge (Regional) and Best Thesis Awardee in Computer Science.',
   },
   {
-    role: 'Frontend Developer',
-    company: 'Company B',
-    period: '2021 — 2023',
-    description: 'Led frontend development for a SaaS platform serving 10K+ users.',
+    role: 'IT Student Trainee',
+    company: 'Sumi Philippines Wiring Systems Corp.',
+    period: 'Sept 2024 - Oct 2024',
+    description: 'Intern at Sumi Philippines Wiring Systems Corp. Led intern team, built Material Release Log, and developed Meeting Logging Web App.',
   },
   {
-    role: 'Junior Developer',
-    company: 'Company C',
-    period: '2020 — 2021',
-    description: 'Developed REST APIs and responsive web interfaces.',
+    role: 'Junior Full-Stack Developer',
+    company: 'Kloudtech Corp',
+    period: 'Sept 2025 - Present',
+    description: 'Working at Kloudtech Corp as a Junior Full Stack Developer, building and maintaining modern web applications.',
   },
 ]
 
 export default function CareerPanel({ onClose }: CareerPanelProps) {
   return (
     <PanelBase title="Route 101 — Career" onClose={onClose}>
-      <div className="relative pl-6 text-xs">
+      <div className="relative pl-6 text-[12px] md:text-[13px]">
         {/* Timeline line */}
-        <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-gray-300" />
+        <div className="absolute bottom-0 left-2 top-0 w-1 border-x-2 border-[#182634] bg-[#ecd9a4]" />
 
         <div className="space-y-6">
           {experiences.map((exp) => (
             <div key={exp.period} className="relative">
               {/* Timeline dot */}
-              <div className="absolute -left-5 top-1 w-2.5 h-2.5 bg-gray-900 rounded-full" />
-              <h3 className="font-bold">{exp.role}</h3>
-              <p className="text-gray-600">
-                {exp.company} · {exp.period}
-              </p>
-              <p className="mt-1 text-gray-700">{exp.description}</p>
+              <div className="absolute -left-[20px] top-2 h-3 w-3 border-2 border-[#182634] bg-[#f0c34f]" />
+              <div className="retro-card space-y-1.5 px-3 py-2.5">
+                <h3 className="pixel-font text-[12px] uppercase tracking-wide text-[#213551] md:text-[11px]">{exp.role}</h3>
+                <p className="text-[#3f4f61]">
+                  <span className="retro-chip mr-2 px-2 py-0.5 text-[12px]">{exp.company} · {exp.period}</span>
+                 
+                </p>
+                <p className="text-[#2a3949]">{exp.description}</p>
+              </div>
             </div>
           ))}
         </div>

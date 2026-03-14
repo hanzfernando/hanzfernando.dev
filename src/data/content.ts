@@ -8,21 +8,28 @@ export type Project = {
 
 export type Content = {
   about: { headline: string; blurb: string }
-  projects: Project[]
-  contact: { email?: string; twitter?: string; github?: string }
+  contact: { email?: string; github?: string; linkedin?: string }
   career: { summary: string }
 }
+
+const calculateAge = (birthDate: Date) => {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const hasBirthdayPassedThisYear =
+    today.getMonth() > birthDate.getMonth() ||
+    (today.getMonth() === birthDate.getMonth() &&
+      today.getDate() >= birthDate.getDate());
+  if (!hasBirthdayPassedThisYear) age--;
+  return age;
+};
 
 const content: Content = {
   about: {
     headline: 'Hi, I\'m Hanz',
-    blurb: 'I build interactive web experiences and multiplayer demos.'
+    blurb: ` I'm a ${calculateAge(new Date(2003, 6, 21))}-year-old junior full-stack
+        developer with a strong passion for building modern web applications.`
   },
-  projects: [
-    { id: 'p1', title: 'Portfolio Game', description: 'A Pokemon-inspired multiplayer portfolio', url: '#', tags: ['phaser','nextjs','multiplayer'] },
-    { id: 'p2', title: 'Blog', description: 'Technical writing and notes', url: '#', tags: ['nextjs','mdx'] }
-  ],
-  contact: { email: 'hi@hanzfernando.dev', twitter: '@hanzfernando', github: 'hanzfernando' },
+  contact: { email: 'fernandohanz23@gmail.com', github: 'https://github.com/hanzfernando', linkedin: 'www.linkedin.com/in/hanz-fernando' },
   career: { summary: 'Experienced frontend developer focused on games and interactive UI.' }
 }
 

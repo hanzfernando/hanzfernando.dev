@@ -22,22 +22,29 @@ export default function PanelBase({ title, onClose, children }: PanelBaseProps) 
   }, [handleKeyDown])
 
   return (
-    <div className="fixed inset-0 z-9999 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-2 md:px-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#0a1322]/70 backdrop-blur-[1px]" onClick={onClose} />
 
       {/* Panel */}
-      <div className="relative z-10 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto border-4 border-gray-800 bg-white shadow-lg">
+      <div className="retro-panel retro-scanlines float-fade-in relative z-10 flex max-h-[86vh] w-full max-w-6xl flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b-2 border-gray-800 bg-gray-900 px-4 py-2">
-          <h2 className="text-xs text-white">{title}</h2>
-          <button className="text-xs text-white hover:text-gray-300" onClick={onClose}>
-            ✕
+        <div className="retro-panel-header flex items-center justify-between px-4 py-2.5 md:px-5 md:py-3">
+          <h2 className="pixel-font text-[10px] uppercase tracking-wide text-white md:text-[11px]">
+            {title}
+          </h2>
+          <button
+            className="retro-btn retro-btn-danger pixel-font px-2.5 py-1 text-[9px] uppercase"
+            onClick={onClose}
+          >
+            ✕ Close
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-4 text-gray-900">{children}</div>
+        <div className="flex-1 overflow-y-auto p-4 text-[13px] text-[#1b2735] md:p-6">
+          {children}
+        </div>
       </div>
     </div>
   )

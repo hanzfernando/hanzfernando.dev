@@ -60,7 +60,7 @@ export default function ChatInput() {
         <div className="flex gap-2">
           <input
             ref={inputRef}
-            className="w-48 border-2 border-gray-600 bg-black/80 px-2 py-1 text-xs text-white outline-none"
+            className="retro-input w-56 px-2 py-1 text-[11px]"
             maxLength={100}
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -73,14 +73,14 @@ export default function ChatInput() {
             placeholder="Type a message..."
           />
           <button
-            className="bg-gray-700 px-3 py-1 text-xs text-white hover:bg-gray-600"
+            className="retro-btn pixel-font px-3 py-1 text-[9px] uppercase"
             onClick={handleSend}
           >
             Send
           </button>
         </div>
       ) : (
-        <span className="text-xs text-white/50">ENTER to chat</span>
+        <span className="retro-chip pixel-font px-2 py-1 text-[9px] uppercase">Enter To Chat</span>
       )}
     </div>
   )

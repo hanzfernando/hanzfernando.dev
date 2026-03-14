@@ -19,19 +19,20 @@ export default function PhaserGame() {
 
       if (destroyed || !containerRef.current) return
 
+      const container = containerRef.current
       const game = new Phaser.Game({
         type: Phaser.AUTO,
-        width: 640,
-        height: 480,
+        width: container.clientWidth,
+        height: container.clientHeight,
         pixelArt: true,
         antialias: false,
         roundPixels: true,
-        parent: containerRef.current,
+        parent: container,
         backgroundColor: '#000000',
         physics: { default: 'arcade', arcade: { debug: false } },
         scene: [BootScene, GameScene, UIScene],
         scale: {
-          mode: Phaser.Scale.FIT,
+          mode: Phaser.Scale.RESIZE,
           autoCenter: Phaser.Scale.CENTER_BOTH,
         },
       })
@@ -60,6 +61,11 @@ export default function PhaserGame() {
   }, [])
 
   return (
-    <div ref={containerRef} className="flex w-full h-full justify-center items-center" />
+    <div
+      ref={containerRef}
+      className="absolute inset-0 bg-black"
+      style={{ touchAction: 'none' }}
+    />
   )
+
 }
