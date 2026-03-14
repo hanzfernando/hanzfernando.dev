@@ -91,7 +91,7 @@ export default function StartScreen() {
               style={{
                 width: SPRITE_FRAME_W,
                 height: SPRITE_FRAME_H,
-                backgroundImage: `url(/pixel/char-${i + 1}-sprite.png)`,
+                backgroundImage: `url(/pixel/characters/char-${i + 1}-sprite.png)`,
                 backgroundPosition: '0px 0px',
                 backgroundRepeat: 'no-repeat',
                 imageRendering: 'pixelated',
