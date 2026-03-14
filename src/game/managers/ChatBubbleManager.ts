@@ -35,7 +35,8 @@ export class ChatBubbleManager {
       height: '100%',
       pointerEvents: 'none',
       overflow: 'visible',
-      zIndex: '1000',
+      // Keep nametags/chat bubbles under React HUD/chat UI (z-30/z-40).
+      zIndex: '20',
     })
     parent.appendChild(overlay)
     this.overlay = overlay
