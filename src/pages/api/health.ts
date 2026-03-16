@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { applyApiRateLimit } from '@/server/httpRateLimit'
+import type { TLSSocket } from 'tls'
 
 type HealthResponse = {
   ok: true
@@ -17,7 +18,7 @@ async function warmRootRoute(req: NextApiRequest): Promise<boolean> {
   const proto =
     typeof forwardedProto === 'string'
       ? forwardedProto.split(',')[0].trim()
-      : req.socket.encrypted
+      : (req.socket as TLSSocket).encrypted
         ? 'https'
         : 'http'
 
