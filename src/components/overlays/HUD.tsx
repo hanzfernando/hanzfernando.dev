@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '@/store/gameStore'
 import { EventBus, GameEvents } from '@/game/EventBus'
-import { overlayLayout } from '@/components/overlayLayout'
+import { overlayLayout } from '@/components/overlays/overlayLayout'
 import type { PanelType } from '@/store/gameStore'
 import {
   User,

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useGameStore } from '@/store/gameStore'
-import { overlayLayout } from '@/components/overlayLayout'
+import { overlayLayout } from '@/components/overlays/overlayLayout'
 
 export default function ChatPanel() {
   const [isOpen, setIsOpen] = useState(false)

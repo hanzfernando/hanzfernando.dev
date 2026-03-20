@@ -2,17 +2,17 @@
 
 import dynamic from 'next/dynamic'
 import { useGameStore } from '@/store/gameStore'
-import ChatPanel from '@/components/ChatPanel'
-import HUD from '@/components/HUD'
-import StartScreen from '@/components/StartScreen'
-import MusicPlayer from '@/components/MusicPlayer'
+import ChatPanel from '@/components/overlays/ChatPanel'
+import HUD from '@/components/overlays/HUD'
+import StartScreen from '@/components/phaser/StartScreen'
+import MusicPlayer from '@/components/overlays/MusicPlayer'
 import AboutPanel from '@/components/panels/AboutPanel'
 import ProjectsPanel from '@/components/panels/ProjectsPanel'
 import ContactPanel from '@/components/panels/ContactPanel'
 import CareerPanel from '@/components/panels/CareerPanel'
 import ResumePanel from '@/components/panels/ResumePanel'
 
-const PhaserGame = dynamic(() => import('@/components/PhaserGame'), {
+const PhaserGame = dynamic(() => import('@/components/phaser/PhaserGame'), {
   ssr: false,
   loading: () => (
     <div className="retro-pixel-surface flex h-full w-full items-center justify-center">
