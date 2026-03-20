@@ -1,31 +1,11 @@
 'use client'
 
 import PanelBase from '@/components/panels/PanelBase'
+import { careerExperiences } from '@/data/career'
 
 interface CareerPanelProps {
   onClose: () => void
 }
-
-const experiences = [
-  {
-    role: 'Student',
-    company: 'Bataan Peninsula State University',
-    period: '2021 – 2025',
-    description: 'Graduated Magna Cum Laude at BPSU. 1st Runner-up in DICT Startup Challenge (Regional) and Best Thesis Awardee in Computer Science.',
-  },
-  {
-    role: 'IT Student Trainee',
-    company: 'Sumi Philippines Wiring Systems Corp.',
-    period: 'Sept 2024 - Oct 2024',
-    description: 'Intern at Sumi Philippines Wiring Systems Corp. Led intern team, built Material Release Log, and developed Meeting Logging Web App.',
-  },
-  {
-    role: 'Junior Full-Stack Developer',
-    company: 'Kloudtech Corp',
-    period: 'Sept 2025 - Present',
-    description: 'Working at Kloudtech Corp as a Junior Full Stack Developer, building and maintaining modern web applications.',
-  },
-]
 
 export default function CareerPanel({ onClose }: CareerPanelProps) {
   return (
@@ -35,7 +15,7 @@ export default function CareerPanel({ onClose }: CareerPanelProps) {
         <div className="absolute bottom-0 left-2 top-0 w-1 border-x-2 border-[#182634] bg-[#ecd9a4]" />
 
         <div className="space-y-6">
-          {experiences.map((exp) => (
+          {careerExperiences.map((exp) => (
             <div key={exp.period} className="relative">
               {/* Timeline dot */}
               <div className="absolute -left-[20px] top-2 h-3 w-3 border-2 border-[#182634] bg-[#f0c34f]" />

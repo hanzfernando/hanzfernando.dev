@@ -21,6 +21,10 @@
   --bg-pattern-grid: linear-gradient(to right, rgba(24, 38, 52, 0.1) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(24, 38, 52, 0.1) 1px, transparent 1px);
   --bg-pattern-size: 12px 12px;
+
+  --foreground: #ececec;
+  --background: #0c0e11;
+  --card: rgb(29, 32, 39);
 }
 
 canvas {
@@ -40,13 +44,11 @@ body,
 
 body {
   font-family: "Trebuchet MS", "Verdana", "Geneva", "Tahoma", sans-serif;
-  background:
-    radial-gradient(circle at 12% 14%, rgba(240, 195, 79, 0.28), transparent 30%),
-    radial-gradient(circle at 86% 18%, rgba(95, 143, 193, 0.35), transparent 26%),
-    linear-gradient(180deg, var(--nb-bg-mid), var(--nb-bg-deep));
   color: var(--nb-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 .pixel-font {
