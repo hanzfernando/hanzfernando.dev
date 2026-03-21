@@ -3,7 +3,8 @@
   import { useEffect, useState, useCallback, useRef } from 'react'
   import { useGameStore } from '@/store/gameStore'
   import { SPRITE_FRAME_W, SPRITE_FRAME_H, CHAR_COUNT } from '@/game/constants'
-  import { Dice5 } from 'lucide-react'
+  import { ArrowLeft, Dice5 } from 'lucide-react'
+  import Link from 'next/link'
 
   async function fetchRandomName(): Promise<string> {
     const res = await fetch('https://randomuser.me/api/?inc=name&noinfo')
@@ -162,6 +163,14 @@
             Start
           </button>
         </div>
+
+        <Link
+          href='/'
+          className='fixed bottom-6 right-6 flex items-center gap-2 border border-white/20 bg-[var(--card)] px-3 py-2 text-xs font-mono hover:bg-white/10 transition-colors'
+        >
+          <ArrowLeft size={13} />
+          Back
+        </Link>
       </div>
     )
   }

@@ -25,6 +25,66 @@
   --foreground: #ececec;
   --background: #0c0e11;
   --card: rgb(29, 32, 39);
+
+  --off-white: #f0f0f0;
+
+  --mp-panel-dark: #2a3040;
+  --mp-panel-ring: #5a7a98;
+  --mp-panel-shadow: #1a2030;
+  --mp-panel-inset: #3a4a5a;
+  --mp-titlebar-bg: #3a5068;
+  --mp-titlebar-border: #2a3a4a;
+
+  --mp-dot-red: #c87860;
+  --mp-dot-red-ring: #8a4a38;
+  --mp-dot-amber: #c8a858;
+  --mp-dot-amber-ring: #8a7030;
+  --mp-dot-green: #7aaa7a;
+  --mp-dot-green-ring: #486848;
+
+  --mp-title-text: #a8c0d0;
+  --mp-status-text: #7a9ab0;
+  --mp-status-idle: #5a7a98;
+
+  --mp-controls-bg: #222838;
+  --mp-divider: #3a4a5a;
+  --mp-label-dim: #4a6070;
+  --mp-label-active: #8ab0c8;
+
+  --mp-eq-idle: #3a4a5a;
+  --mp-eq-slate: #8ab0c8;
+  --mp-eq-amber: #c8a858;
+  --mp-eq-moss: #7aaa7a;
+
+  --mp-btn-base-bg: #2e3c4e;
+  --mp-btn-base-hover: #384858;
+  --mp-btn-base-text: #7a9ab0;
+  --mp-btn-base-shadow: #141e28;
+  --mp-btn-base-inset: #3e5060;
+
+  --mp-btn-skip-bg: #284058;
+  --mp-btn-skip-hover: #304a68;
+  --mp-btn-skip-text: #8ab0c8;
+  --mp-btn-skip-shadow: #102030;
+  --mp-btn-skip-inset: #3a5870;
+
+  --mp-btn-play-bg: #3a3018;
+  --mp-btn-play-hover: #483a20;
+  --mp-btn-play-text: #c8a858;
+  --mp-btn-play-shadow: #1a1808;
+  --mp-btn-play-inset: #504020;
+
+  --mp-btn-mute-bg: #203028;
+  --mp-btn-mute-hover: #283c30;
+  --mp-btn-mute-text: #7aaa7a;
+  --mp-btn-mute-shadow: #101810;
+  --mp-btn-mute-inset: #2e4838;
+
+  --mp-btn-mute-muted-bg: #302020;
+  --mp-btn-mute-muted-hover: #3c2828;
+  --mp-btn-mute-muted-text: #c87860;
+  --mp-btn-mute-muted-shadow: #180e0e;
+  --mp-btn-mute-muted-inset: #482a28;
 }
 
 canvas {
@@ -114,6 +174,14 @@ body {
   transition: transform 120ms ease, filter 120ms ease;
 }
 
+.retro-btn-flat {
+  box-shadow: none;
+}
+
+.retro-btn-flat:active {
+  box-shadow: none;
+}
+
 .retro-btn:hover {
   filter: brightness(1.08);
 }
@@ -176,6 +244,70 @@ body {
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes mp-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes mp-eq1 {
+  0% {
+    height: 4px;
+  }
+  25% {
+    height: 10px;
+  }
+  50% {
+    height: 6px;
+  }
+  75% {
+    height: 12px;
+  }
+  100% {
+    height: 4px;
+  }
+}
+
+@keyframes mp-eq2 {
+  0% {
+    height: 10px;
+  }
+  25% {
+    height: 4px;
+  }
+  50% {
+    height: 12px;
+  }
+  75% {
+    height: 6px;
+  }
+  100% {
+    height: 10px;
+  }
+}
+
+@keyframes mp-eq3 {
+  0% {
+    height: 6px;
+  }
+  25% {
+    height: 12px;
+  }
+  50% {
+    height: 4px;
+  }
+  75% {
+    height: 8px;
+  }
+  100% {
+    height: 6px;
   }
 }
 

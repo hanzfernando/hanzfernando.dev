@@ -3,9 +3,18 @@ export type CareerExperience = {
   company: string
   period: string
   description: string
+  logo?: string
 }
 
 export const careerExperiences: CareerExperience[] = [
+  {
+    role: 'Junior Full-Stack Developer',
+    company: 'Kloudtech Corp',
+    period: 'Sept 2025 - Present',
+    description:
+      'Working at Kloudtech Corp as a Junior Full Stack Developer, building and maintaining modern web applications.',
+    logo: '/company/kloudtech.png',
+    },
   {
     role: 'IT Student Trainee',
     company: 'Sumi Philippines Wiring Systems Corp.',
@@ -13,11 +22,5 @@ export const careerExperiences: CareerExperience[] = [
     description:
       'Intern at Sumi Philippines Wiring Systems Corp. Led intern team, built Material Release Log, and developed Meeting Logging Web App.',
   },
-  {
-    role: 'Junior Full-Stack Developer',
-    company: 'Kloudtech Corp',
-    period: 'Sept 2025 - Present',
-    description:
-      'Working at Kloudtech Corp as a Junior Full Stack Developer, building and maintaining modern web applications.',
-  },
+  
 ]

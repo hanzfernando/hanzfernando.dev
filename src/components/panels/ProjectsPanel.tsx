@@ -3,6 +3,7 @@
 import PanelBase from '@/components/panels/PanelBase'
 import { projects } from '@/data/projects'
 import Image from 'next/image'
+import UseCaseBadge from '@/components/portfolio/UseCaseBadge'
 
 interface ProjectsPanelProps {
   onClose: () => void
@@ -61,6 +62,9 @@ export default function ProjectsPanel({ onClose }: ProjectsPanelProps) {
                   <h3 className="line-clamp-2 text-[14px] font-semibold text-[#1e3553]">
                     {project.title}
                   </h3>
+                  <div className="mt-1">
+                    <UseCaseBadge useCase={project.useCase} />
+                  </div>
                   <p className="mt-1 line-clamp-3 text-[12px] leading-relaxed text-[#33475b]">
                     {project.shortDescription}
                   </p>
