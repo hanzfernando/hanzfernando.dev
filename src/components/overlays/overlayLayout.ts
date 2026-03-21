@@ -5,5 +5,5 @@ export const overlayLayout = {
   hudTopRight: 'right-3 top-3',
   chatAnchor: 'left-3 top-3',
   mobileDpad: 'bottom-6 left-4',
-  mobileInteract: 'bottom-8 right-6',
+  mobileInteract: 'bottom-20 right-6',
 } as const

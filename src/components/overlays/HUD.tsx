@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGameStore } from '@/store/gameStore'
 import { EventBus, GameEvents } from '@/game/EventBus'
-import { overlayLayout } from '@/components/overlayLayout'
+import { overlayLayout } from '@/components/overlays/overlayLayout'
 import type { PanelType } from '@/store/gameStore'
 import {
   User,
@@ -19,6 +19,7 @@ import {
   Zap,
   MapPin,
   Menu,
+  Music2,
 } from 'lucide-react'
 
 type MenuAction = 'about' | 'projects' | 'career' | 'resume' | 'contact' | 'title'
@@ -45,6 +46,7 @@ export default function HUD() {
   const openPanel   = useGameStore((s) => s.openPanel)
   const resetToTitle= useGameStore((s) => s.resetToTitle)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMusicMuted, setIsMusicMuted] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -60,6 +62,18 @@ export default function HUD() {
     return () => {
       window.removeEventListener('pointerdown', onPointerDown)
       window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
+
+  useEffect(() => {
+    const onMutedChanged = (muted: unknown) => {
+      if (typeof muted === 'boolean') {
+        setIsMusicMuted(muted)
+      }
+    }
+    EventBus.on(GameEvents.MUSIC_MUTED_CHANGED, onMutedChanged)
+    return () => {
+      EventBus.off(GameEvents.MUSIC_MUTED_CHANGED, onMutedChanged)
     }
   }, [])
 
@@ -99,33 +113,49 @@ export default function HUD() {
 
       {/* Top-right: menu */}
       <div className={`absolute ${overlayLayout.hudTopRight} z-30 flex flex-col items-end gap-2 sm:flex-row sm:items-center`}>
-        <div ref={menuRef} className="relative">
+        <div className='flex gap-2'>
+
           <button
-            className="retro-btn pixel-font px-2 h-8 text-[9px] uppercase flex items-center gap-1.5"
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-            title="Open menu"
+            type="button"
+            className={`retro-btn pixel-font h-8 w-8 text-[9px] uppercase flex items-center justify-center md:hidden ${
+              isMusicMuted ? 'retro-btn-danger' : ''
+            }`}
+            onClick={() => EventBus.emit(GameEvents.MUSIC_TOGGLE_MUTE)}
+            title={isMusicMuted ? 'Unmute music' : 'Mute music'}
+            aria-label={isMusicMuted ? 'Unmute music' : 'Mute music'}
           >
-            <Menu size={11} />
-            Menu
+            <Music2 size={11} className={isMusicMuted ? 'opacity-70' : ''} />
           </button>
 
-          {isMenuOpen && (
-            <div className="retro-pixel-surface pixel-font float-fade-in absolute right-0 top-10 z-40 min-w-[180px] p-1.5">
-              <div className="flex flex-col gap-1">
-                {menuItems.map((item) => (
-                  <button
-                    key={item.action}
-                    className="retro-btn px-2 py-1.5 text-left text-[9px] uppercase flex items-center gap-2"
-                    onClick={() => handleMenuAction(item.action)}
-                  >
-                    {item.icon}
-                    {item.label}
-                  </button>
-                ))}
+          <div ref={menuRef} className="relative">
+            <button
+              className="retro-btn pixel-font px-2 h-8 text-[9px] uppercase flex items-center gap-1.5"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              title="Open menu"
+            >
+              <Menu size={11} />
+              Menu
+            </button>
+
+            {isMenuOpen && (
+              <div className="retro-pixel-surface pixel-font float-fade-in absolute right-0 top-10 z-40 min-w-[180px] p-1.5">
+                <div className="flex flex-col gap-1">
+                  {menuItems.map((item) => (
+                    <button
+                      key={item.action}
+                      className="retro-btn px-2 py-1.5 text-left text-[9px] uppercase flex items-center gap-2"
+                      onClick={() => handleMenuAction(item.action)}
+                    >
+                      {item.icon}
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
+        
       </div>
 
       {/* Mobile controls */}
