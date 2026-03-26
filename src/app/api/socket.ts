@@ -12,6 +12,10 @@ interface ExtendedServer extends HTTPServer {
   _wss?: WebSocketServer
 }
 
+interface AliveWebSocket extends WebSocket {
+  isAlive?: boolean
+}
+
 interface SocketWithServer extends Socket {
   server: ExtendedServer
 }
@@ -33,6 +37,20 @@ if (process.env.NODE_ENV !== 'production') {
 function handleConnection(ws: WebSocket): void {
   const socketId = roomManager.generateId()
   let joined = false
+  let cleanedUp = false
+  const client = ws as AliveWebSocket
+  client.isAlive = true
+
+  const cleanupConnection = () => {
+    if (cleanedUp) return
+    cleanedUp = true
+    if (joined) roomManager.leave(socketId)
+    rateLimiter.cleanup(socketId)
+  }
+
+  client.on('pong', () => {
+    client.isAlive = true
+  })
 
   ws.on('message', (raw: Buffer) => {
     if (!rateLimiter.check(socketId)) {
@@ -105,13 +123,11 @@ function handleConnection(ws: WebSocket): void {
   })
 
   ws.on('close', () => {
-    if (joined) roomManager.leave(socketId)
-    rateLimiter.cleanup(socketId)
+    cleanupConnection()
   })
 
   ws.on('error', () => {
-    if (joined) roomManager.leave(socketId)
-    rateLimiter.cleanup(socketId)
+    cleanupConnection()
   })
 }
 
@@ -121,13 +137,32 @@ function setupWSS(server: ExtendedServer): void {
   const wss = new WebSocketServer({ noServer: true })
   server._wss = wss
 
+  const heartbeatTimer = setInterval(() => {
+    for (const ws of wss.clients) {
+      const client = ws as AliveWebSocket
+      if (client.isAlive === false) {
+        ws.terminate()
+        continue
+      }
+      client.isAlive = false
+      ws.ping()
+    }
+  }, 30_000)
+
   server.on('upgrade', (request: IncomingMessage, socket: Duplex, head: Buffer) => {
     const { pathname } = new URL(request.url ?? '/', `http://${request.headers.host}`)
     if (pathname === '/api/ws') {
       wss.handleUpgrade(request, socket, head, (client) => {
         wss.emit('connection', client, request)
       })
+      return
     }
+
+    ;(socket as Socket).destroy()
+  })
+
+  wss.on('close', () => {
+    clearInterval(heartbeatTimer)
   })
 
   wss.on('connection', handleConnection)

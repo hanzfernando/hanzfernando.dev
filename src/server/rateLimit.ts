@@ -7,9 +7,25 @@ export class RateLimiter {
   private buckets = new Map<string, Bucket>()
   private maxTokens = 30
   private refillRate = 30 // tokens per second
+  private maxIdleMs = 5 * 60_000
+  private checksSincePrune = 0
+
+  private pruneStaleBuckets(now: number): void {
+    for (const [socketId, bucket] of this.buckets) {
+      if (now - bucket.lastRefill > this.maxIdleMs) {
+        this.buckets.delete(socketId)
+      }
+    }
+  }
 
   check(socketId: string): boolean {
     const now = Date.now()
+    this.checksSincePrune += 1
+    if (this.checksSincePrune >= 500) {
+      this.pruneStaleBuckets(now)
+      this.checksSincePrune = 0
+    }
+
     let bucket = this.buckets.get(socketId)
 
     if (!bucket) {

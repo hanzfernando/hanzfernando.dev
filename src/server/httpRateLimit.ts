@@ -11,6 +11,15 @@ interface RateLimitConfig {
 }
 
 const buckets = new Map<string, FixedWindowBucket>()
+let requestsSincePrune = 0
+
+function pruneExpiredBuckets(now: number): void {
+  for (const [key, bucket] of buckets) {
+    if (now >= bucket.resetAt) {
+      buckets.delete(key)
+    }
+  }
+}
 
 function getClientIp(req: NextApiRequest): string {
   const xff = req.headers['x-forwarded-for']
@@ -32,6 +41,12 @@ export function applyApiRateLimit(
   scope = 'global',
 ): boolean {
   const now = Date.now()
+  requestsSincePrune += 1
+  if (requestsSincePrune >= 200) {
+    pruneExpiredBuckets(now)
+    requestsSincePrune = 0
+  }
+
   const key = `${scope}:${getClientIp(req)}`
   const existing = buckets.get(key)
 
