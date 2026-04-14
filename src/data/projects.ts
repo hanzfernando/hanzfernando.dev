@@ -188,7 +188,7 @@ export const projects: PortfolioProject[] = [
             "Applied reusable middleware for authentication, logging, and error handling.",
             "Deployed full-stack application using Vercel (frontend) and Render (backend)."
         ],
-        link: "https://limis-by-hanz.vercel.app/",
+        link: "https://limis.hanzfernando.com/",
         isFeatured: true,
         useCase: "Personal"
     },
