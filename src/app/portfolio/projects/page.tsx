@@ -13,9 +13,9 @@ const otherProjects = sortedProjects.filter((project) => !project.isFeatured)
 const ProjectsPage = () => {
   return (
     <div className='max-w-4xl w-fill m-auto p-4'>
-      <section className='bg-[var(--card)] p-4'>
+      <section className='bg-(--card) p-4'>
         <Link
-          href='/portfolio'
+          href='/'
           className='inline-flex items-center gap-2 border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10 transition-colors'
         >
           <ArrowLeft size={15} />
@@ -28,7 +28,7 @@ const ProjectsPage = () => {
         </p>
       </section>
 
-      <section className='mt-4 bg-[var(--card)] p-4'>
+      <section className='mt-4 bg-(--card) p-4'>
         <h2 className='text-xl font-bold mb-3 font-mono'>Featured</h2>
         <div className='grid gap-3'>
           {featuredProjects.map((project) => (
@@ -79,7 +79,7 @@ const ProjectsPage = () => {
         </div>
       </section>
 
-      <section className='mt-4 bg-[var(--card)] p-4'>
+      <section className='mt-4 bg-(--card) p-4'>
         <h2 className='text-xl font-bold mb-3 font-mono'>More Builds</h2>
         <div className='grid sm:grid-cols-2 gap-3'>
           {otherProjects.map((project) => (
