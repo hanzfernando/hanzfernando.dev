@@ -14,15 +14,16 @@ const ProjectsPage = () => {
   return (
     <div className='max-w-4xl w-fill m-auto p-4'>
       <section className='bg-(--card) p-4'>
-        <Link
-          href='/'
-          className='inline-flex items-center gap-2 border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10 transition-colors'
-        >
-          <ArrowLeft size={15} />
-          Back to Portfolio
-        </Link>
-
-        <h1 className='mt-4 text-2xl font-bold font-mono'>All Projects</h1>
+        <div className='flex items-start justify-between gap-3'>
+          <h1 className='text-2xl font-bold font-mono'>All Projects</h1>
+          <Link
+            href='/'
+            className='inline-flex items-center gap-2 border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10 transition-colors whitespace-nowrap'
+          >
+            <ArrowLeft size={15} />
+            <span className='hidden md:block'>Back to Portfolio</span>
+          </Link>
+        </div>
         <p className='mt-2 text-sm opacity-85 leading-relaxed'>
           A complete list of projects, with featured work highlighted first.
         </p>

@@ -166,8 +166,8 @@ export const projects: PortfolioProject[] = [
             "Practiced component-based architecture and clean code separation for maintainability.",
             "Wrote unit tests for key helpers using Jest."
         ],
-        link: "https://pitaka-by-hanz.vercel.app/",
-        isFeatured: true,
+        link: "",
+        isFeatured: false,
         useCase: "Personal"
     },
     {

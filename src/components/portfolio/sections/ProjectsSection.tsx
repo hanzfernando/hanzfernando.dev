@@ -13,7 +13,16 @@ const featuredProjects = projects
 const ProjectsSection = () => {
   return (
     <section className='mt-4 bg-[var(--card)] p-4'>
-      <h2 className='text-2xl font-bold mb-4 font-mono'>Projects</h2>
+      <div className='mb-4 flex items-start justify-between gap-3'>
+        <h2 className='text-2xl font-bold font-mono'>Projects</h2>
+        <Link
+          href='/portfolio/projects'
+          className='inline-flex items-center gap-2 border border-white/20 px-3 py-2 text-sm hover:bg-white/10 transition-colors whitespace-nowrap'
+        >
+          More Projects
+          <ArrowRight size={16} />
+        </Link>
+      </div>
       <p className='text-sm leading-relaxed opacity-85'>
         Selected projects with the biggest product and engineering impact.
       </p>
@@ -69,15 +78,6 @@ const ProjectsSection = () => {
         ))}
       </div>
 
-      <div className='mt-4'>
-        <Link
-          href='/portfolio/projects'
-          className='inline-flex items-center gap-2 border border-white/20 px-3 py-2 text-sm hover:bg-white/10 transition-colors'
-        >
-          More Projects
-          <ArrowRight size={16} />
-        </Link>
-      </div>
     </section>
   )
 }
