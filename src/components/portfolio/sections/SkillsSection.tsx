@@ -9,9 +9,13 @@ const SkillsSection = () => {
           <div key={label}>
             <h3 className='font-bold font-mono text-sm mb-1'>{label}</h3>
             <div className='flex flex-wrap gap-1.5'>
-              {techs.map((tech) => (
-                <span key={tech} className='border font-geist text-sm px-2 py-0.5 opacity-80'>
-                  {tech}
+              {techs.map(({ name, icon: Icon, color }) => (
+                <span
+                  key={name}
+                  className='inline-flex items-center gap-1.5 border font-geist text-sm px-2 py-0.5 opacity-85 bg-white/5'
+                >
+                  <Icon size={13} style={{ color }} aria-hidden />
+                  {name}
                 </span>
               ))}
             </div>

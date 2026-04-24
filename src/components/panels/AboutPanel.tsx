@@ -99,37 +99,39 @@ export default function AboutPanel({ onClose }: AboutPanelProps) {
             {skillCategories.map(({ label, techs }) => {
               const s = categoryStyle[label] ?? { chipBg: '#e5e7eb', chipText: '#111' }
               return (
-                <div key={label} className='flex items-start gap-2'>
+                <div key={label} className='flex items-center gap-2'>
                   {/* Category label */}
                   <span
                     style={{
                       background: s.chipBg,
                       color: s.chipText,
                       border: '2px solid var(--nb-stroke)',
+                      minWidth: '7rem',
+                      flexShrink: 0,
+                      marginTop: '2px',
                     }}
-                    className="pixel-font inline-flex items-center text-[8px] py-1 px-2 uppercase tracking-[0.06em]"
+                    className="pixel-font inline-flex items-center justify-center text-[8px] py-1 px-2 uppercase tracking-[0.06em] leading-4"
                   >
                     {label}
                   </span>
 
                   {/* Tech pills */}
-                  <div className='flex flex-wrap gap-1 pt-1'>
-                    {techs.map((tech) => (
-                      <span
-                        key={tech}
-                        
-                        style={{
-                          border: '1.5px solid var(--nb-stroke)',
-                          background: 'linear-gradient(180deg,#fffdf3,#f5ebcc)',
-                          color: 'var(--nb-ink)',
-                          boxShadow: '1px 1px 0 var(--nb-shadow-hard)',
-                        }}
-
-                        className="inline-flex bg-[linear-gradient(180deg,#fffdf3,#f5ebcc)] font-mono text-[10px] font-bold py-1 px-2 text-(--nb-ink) leading-4"
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                  <div className='flex items-center flex-wrap gap-1'>
+                    {techs.map(({ name, icon: Icon, color }) => (
+                    <span
+                      key={name}
+                      style={{
+                        border: '1.5px solid var(--nb-stroke)',
+                        background: 'linear-gradient(180deg,#fffdf3,#f5ebcc)',
+                        color: 'var(--nb-ink)',
+                        boxShadow: '1px 1px 0 var(--nb-shadow-hard)',
+                      }}
+                      className="inline-flex items-center gap-1 font-mono text-[10px] font-bold py-1 px-2 leading-4"
+                    >
+                      <Icon size={11} style={{ color }} aria-hidden />
+                      {name}
+                    </span>
+                  ))}
                   </div>
                 </div>
               )
