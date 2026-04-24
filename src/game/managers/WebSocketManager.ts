@@ -10,6 +10,11 @@ type TransportMode = 'supabase' | 'endpoint'
 const WS_TRANSPORT_MODE: TransportMode = 'supabase'
 // const WS_TRANSPORT_MODE: TransportMode = 'endpoint'
 
+// How many Supabase channel errors to tolerate before falling back to the
+// WebSocket endpoint.  Each attempt uses exponential back-off via
+// scheduleReconnect(), so the real wall-clock budget is ~1+2+4 = 7 s.
+const SUPABASE_MAX_RETRIES = 3
+
 type PresenceState = {
   id: string
   username: string
@@ -45,6 +50,14 @@ export class WebSocketManager {
   private y = SPAWN_TILE_Y
   private direction: PlayerState['direction'] = 'down'
   private isMoving = false
+
+  // --- presence debounce ---------------------------------------------------
+  // Calling channel.track() on every PLAYER_MOVE would fire up to 20 presence
+  // updates per second on top of the broadcast, easily overwhelming Supabase's
+  // rate limiter and causing TIMED_OUT / CHANNEL_ERROR drops.
+  // We coalesce rapid position changes into one track() call per 100 ms.
+  private presenceDebounceTimer: ReturnType<typeof setTimeout> | null = null
+  private readonly PRESENCE_DEBOUNCE_MS = 100
 
   constructor() {
     if (typeof window === 'undefined') return
@@ -93,11 +106,28 @@ export class WebSocketManager {
     this.createEndpointConnection()
   }
 
+  // -------------------------------------------------------------------------
+  // Fallback: only switches permanently to the WebSocket endpoint after
+  // SUPABASE_MAX_RETRIES consecutive Supabase channel failures.  Each call
+  // increments reconnectAttempts; scheduleReconnect() will try Supabase again
+  // until the budget is exhausted, then this method actually commits the switch.
+  // -------------------------------------------------------------------------
   private fallbackToEndpoint(): void {
     if (this.offlineMode) return
     if (this.transportMode === 'endpoint') return
     if (this.hasFailedOverToEndpoint) return
 
+    // Still within the Supabase retry budget — schedule another attempt.
+    if (this.reconnectAttempts < SUPABASE_MAX_RETRIES) {
+      console.warn(
+        `Supabase channel error (attempt ${this.reconnectAttempts + 1}/${SUPABASE_MAX_RETRIES}). Retrying…`,
+      )
+      this.scheduleReconnect()
+      return
+    }
+
+    // Budget exhausted — commit to the WebSocket endpoint for this session.
+    console.warn('Supabase channel failed repeatedly. Falling back to WebSocket endpoint.')
     this.hasFailedOverToEndpoint = true
     this.transportMode = 'endpoint'
     this.isSubscribed = false
@@ -127,6 +157,11 @@ export class WebSocketManager {
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
+    }
+
+    if (this.presenceDebounceTimer) {
+      clearTimeout(this.presenceDebounceTimer)
+      this.presenceDebounceTimer = null
     }
 
     if (this.ws) {
@@ -262,6 +297,8 @@ export class WebSocketManager {
     this.channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
         this.isSubscribed = true
+        // Successful connection — reset all failure counters so that a future
+        // transient error gets the full retry budget again.
         this.reconnectAttempts = 0
         this.hasFailedOverToEndpoint = false
         if (this.joined) {
@@ -274,9 +311,9 @@ export class WebSocketManager {
 
       if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
         this.isSubscribed = false
+        // Delegate to fallbackToEndpoint which decides whether to retry
+        // Supabase or permanently switch transports.
         this.fallbackToEndpoint()
-        if (this.transportMode === 'endpoint') return
-        this.scheduleReconnect()
       }
     })
   }
@@ -285,8 +322,8 @@ export class WebSocketManager {
     if (this.isConnected()) {
       this.publishMessage(msg)
     } else {
-      // Queue messages sent before connection opens
-      // Keep only the latest PLAYER_MOVE to avoid stale position flood
+      // Queue messages sent before connection opens.
+      // Keep only the latest PLAYER_MOVE to avoid stale position flood.
       if (msg.type === 'PLAYER_MOVE') {
         const idx = this.messageQueue.findLastIndex((queued) => queued.type === 'PLAYER_MOVE')
         if (idx !== -1) this.messageQueue.splice(idx, 1)
@@ -376,7 +413,10 @@ export class WebSocketManager {
         this.y = msg.payload.y
         this.direction = msg.payload.direction
         this.isMoving = msg.payload.isMoving
+        // Presence is debounced — other players get a coalesced position
+        // update at most every PRESENCE_DEBOUNCE_MS ms, well within limits.
         this.updatePresence()
+        // Broadcast is sent immediately for smooth movement on other clients.
         void this.channel.send({
           type: 'broadcast',
           event: 'player-move',
@@ -413,18 +453,33 @@ export class WebSocketManager {
     }
   }
 
+  // -------------------------------------------------------------------------
+  // Debounced presence update.
+  // Rapid PLAYER_MOVE events no longer fire channel.track() on every frame;
+  // instead we wait PRESENCE_DEBOUNCE_MS after the last move before tracking.
+  // Broadcasts are still sent immediately (see publishMessageSupabase).
+  // -------------------------------------------------------------------------
   private updatePresence(): void {
     if (!this.channel || !this.isSubscribed || !this.joined) return
-    void this.channel.track({
-      id: this.localId,
-      username: this.username,
-      character: this.character,
-      x: this.x,
-      y: this.y,
-      direction: this.direction,
-      isMoving: this.isMoving,
-      onlineAt: new Date().toISOString(),
-    })
+
+    if (this.presenceDebounceTimer) {
+      clearTimeout(this.presenceDebounceTimer)
+    }
+
+    this.presenceDebounceTimer = setTimeout(() => {
+      this.presenceDebounceTimer = null
+      if (!this.channel || !this.isSubscribed || !this.joined) return
+      void this.channel.track({
+        id: this.localId,
+        username: this.username,
+        character: this.character,
+        x: this.x,
+        y: this.y,
+        direction: this.direction,
+        isMoving: this.isMoving,
+        onlineAt: new Date().toISOString(),
+      })
+    }, this.PRESENCE_DEBOUNCE_MS)
   }
 
   private sanitizeUsername(raw: string): string {
@@ -468,15 +523,13 @@ export class WebSocketManager {
   private scheduleReconnect(): void {
     if (this.offlineMode) return
 
-    if (this.reconnectAttempts >= this.maxReconnectAttempts) return
-
-    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000)
-    this.reconnectAttempts++
-
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       this.enterOfflineMode()
       return
     }
+
+    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000)
+    this.reconnectAttempts++
 
     this.reconnectTimer = setTimeout(() => {
       if (this.transportMode === 'supabase') {
@@ -484,6 +537,7 @@ export class WebSocketManager {
           void this.channel.unsubscribe()
           this.channel = null
         }
+        this.isSubscribed = false
         this.createChannel()
         return
       }
@@ -498,10 +552,17 @@ export class WebSocketManager {
 
   disconnect(): void {
     this.offlineMode = false
+
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
     }
+
+    if (this.presenceDebounceTimer) {
+      clearTimeout(this.presenceDebounceTimer)
+      this.presenceDebounceTimer = null
+    }
+
     this.reconnectAttempts = this.maxReconnectAttempts // prevent reconnect
     this.isSubscribed = false
 
