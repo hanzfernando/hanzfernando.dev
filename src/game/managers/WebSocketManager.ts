@@ -406,6 +406,17 @@ export class WebSocketManager {
         this.character = Math.max(0, Math.min(3, Math.floor(msg.payload.character)))
         this.joined = true
         this.updatePresence()
+
+        // Log to Vercel server logs
+        void fetch('/api/player-join', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: this.username,
+            character: this.character,
+          }),
+        })
+
         break
       }
       case 'PLAYER_MOVE': {
