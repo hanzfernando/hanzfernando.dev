@@ -1,6 +1,7 @@
 import { WebSocket } from 'ws'
 import { randomUUID } from 'crypto'
 import type { PlayerState, ServerMessage } from '@/types/ws-protocol'
+import { SPAWN_TILE_X, SPAWN_TILE_Y } from '@/game/constants'
 
 export class RoomManager {
   private players = new Map<string, PlayerState>()
@@ -18,8 +19,8 @@ export class RoomManager {
     const player: PlayerState = {
       id: socketId,
       username: username.slice(0, 16),
-      x: 16,
-      y: 12,
+      x: SPAWN_TILE_X,
+      y: SPAWN_TILE_Y,
       direction: 'down',
       isMoving: false,
       character: Math.max(0, Math.min(3, Math.floor(character))),
