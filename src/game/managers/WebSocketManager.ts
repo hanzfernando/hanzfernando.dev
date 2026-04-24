@@ -415,7 +415,7 @@ export class WebSocketManager {
         this.isMoving = msg.payload.isMoving
         // Presence is debounced — other players get a coalesced position
         // update at most every PRESENCE_DEBOUNCE_MS ms, well within limits.
-        this.updatePresence()
+        // this.updatePresence()
         // Broadcast is sent immediately for smooth movement on other clients.
         void this.channel.send({
           type: 'broadcast',
