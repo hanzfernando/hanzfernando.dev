@@ -4,8 +4,8 @@ export const MAP_HEIGHT = 32
 export const MOVE_DURATION_MS = 120
 export const SPAWN_TILE_X = 10
 export const SPAWN_TILE_Y = 10
-export const EMIT_INTERVAL_MS = 50
-export const INTERPOLATION_BUFFER = 2
+export const EMIT_INTERVAL_MS = 100
+// export const INTERPOLATION_BUFFER = 2
 
 // Sprite sheets: char-1-sprite.png … char-4-sprite.png
 // Each sheet: 4 columns × 4 rows (4 animation frames per direction)

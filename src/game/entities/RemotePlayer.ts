@@ -1,7 +1,12 @@
 import Phaser from 'phaser'
-import { TILE_SIZE, INTERPOLATION_BUFFER, MOVE_DURATION_MS, charSheetKey } from '@/game/constants'
+import { TILE_SIZE, MOVE_DURATION_MS, charSheetKey } from '@/game/constants'
 import type { PlayerState } from '@/types/ws-protocol'
 import type { ChatBubbleManager } from '@/game/managers/ChatBubbleManager'
+
+// How many ms to wait before consuming the buffer when it's been idle.
+// This covers the case where a player stops moving and no more positions
+// arrive — we still need to flush the last queued position.
+const IDLE_FLUSH_DELAY_MS = MOVE_DURATION_MS * 1.5
 
 interface PositionSnapshot {
   x: number
@@ -19,6 +24,11 @@ export class RemotePlayer {
   private currentDirection = 'down'
   private sheetKey: string
   public id: string
+
+  // Tracks how long we've been waiting with a non-empty buffer but not tweening.
+  // When this exceeds IDLE_FLUSH_DELAY_MS we flush regardless of buffer size,
+  // which prevents the last move from getting stuck.
+  private idleWaitMs = 0
 
   constructor(scene: Phaser.Scene, state: PlayerState, chatBubbleManager?: ChatBubbleManager) {
     this.scene = scene
@@ -50,6 +60,7 @@ export class RemotePlayer {
   }
 
   enqueuePosition(pos: Pick<PlayerState, 'x' | 'y' | 'direction' | 'isMoving'>): void {
+    // Cap buffer to avoid runaway lag buildup
     if (this.positionBuffer.length >= 5) {
       this.positionBuffer.shift()
     }
@@ -59,20 +70,40 @@ export class RemotePlayer {
       direction: pos.direction,
       isMoving: pos.isMoving,
     })
+    // Reset idle counter whenever new data arrives
+    this.idleWaitMs = 0
   }
 
-  update(_delta: number): void {
+  update(delta: number): void {
     this.sprite.setDepth(this.sprite.y)
 
-    if (this.isTweening || this.positionBuffer.length < INTERPOLATION_BUFFER) return
+    // Nothing to do
+    if (this.positionBuffer.length === 0) return
 
+    // Already mid-tween — let it finish, next update will chain immediately
+    if (this.isTweening) return
+
+    // Wait for at least 1 buffered position.
+    // If only 1 is queued and the player might still be moving, give it a
+    // short window (IDLE_FLUSH_DELAY_MS) to see if more arrive.
+    // If none arrive within that window we flush anyway so the last step lands.
+    if (this.positionBuffer.length === 1) {
+      this.idleWaitMs += delta
+      if (this.idleWaitMs < IDLE_FLUSH_DELAY_MS) return
+    }
+
+    this.idleWaitMs = 0
+    this.consumeNextPosition()
+  }
+
+  private consumeNextPosition(): void {
     const next = this.positionBuffer.shift()!
     const targetPx = next.x * TILE_SIZE + TILE_SIZE / 2
     const targetPy = next.y * TILE_SIZE + TILE_SIZE / 2
 
     this.currentDirection = next.direction || this.currentDirection
 
-    // Snap if too far away
+    // Snap if too far away (e.g. teleport or reconnect)
     const dist = Math.abs(targetPx - this.sprite.x) + Math.abs(targetPy - this.sprite.y)
     if (dist > 5 * TILE_SIZE) {
       this.sprite.setPosition(targetPx, targetPy)
@@ -80,10 +111,16 @@ export class RemotePlayer {
       return
     }
 
-    this.isTweening = true
-    if (dist > 0) {
-      this.sprite.play(`${this.sheetKey}-walk-${this.currentDirection}`, true)
+    // No actual movement — just update direction/animation without tweening
+    if (dist === 0) {
+      if (!next.isMoving) {
+        this.sprite.play(`${this.sheetKey}-idle-${this.currentDirection}`, true)
+      }
+      return
     }
+
+    this.isTweening = true
+    this.sprite.play(`${this.sheetKey}-walk-${this.currentDirection}`, true)
 
     this.scene.tweens.add({
       targets: this.sprite,
@@ -93,7 +130,14 @@ export class RemotePlayer {
       ease: 'Linear',
       onComplete: () => {
         this.isTweening = false
-        this.sprite.play(`${this.sheetKey}-idle-${this.currentDirection}`, true)
+
+        // If more moves are buffered, chain immediately — no idle flash
+        if (this.positionBuffer.length > 0) {
+          this.consumeNextPosition()
+        } else {
+          // Truly stopped — play idle
+          this.sprite.play(`${this.sheetKey}-idle-${this.currentDirection}`, true)
+        }
       },
     })
   }
