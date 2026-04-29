@@ -122,7 +122,7 @@ const PortfolioHeader = () => {
                 ???
               </span>
               <span className='ml-2 text-sm font-semibold hover:underline hidden sm:inline relative'>
-                Play Game
+               Interactive Mode
               </span>
             </div>
           </div>

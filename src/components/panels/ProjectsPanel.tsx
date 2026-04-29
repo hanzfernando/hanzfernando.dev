@@ -65,6 +65,9 @@ export default function ProjectsPanel({ onClose }: ProjectsPanelProps) {
                   <div className="mt-1">
                     <UseCaseBadge useCase={project.useCase} />
                   </div>
+
+                  
+
                   <p className="mt-1 line-clamp-3 text-[12px] leading-relaxed text-[#33475b]">
                     {project.shortDescription}
                   </p>
@@ -86,16 +89,14 @@ export default function ProjectsPanel({ onClose }: ProjectsPanelProps) {
                   ))}
                 </div>
 
-                {/* Learning points */}
+                {/* Description */}
                 <div className="flex-1">
                   <h4 className="pixel-font mb-1.5 text-[7.5px] uppercase tracking-wide text-[#2c4d76]">
-                    What I Learned
+                    Details
                   </h4>
-                  <ul className="list-disc space-y-1 pl-4 text-[11px] leading-relaxed text-[#33475b]">
-                    {project.learningPoints.slice(0, 3).map((point, pointIndex) => (
-                      <li key={`${project.id}-point-${pointIndex}`}>{point}</li>
-                    ))}
-                  </ul>
+                  <p className="whitespace-pre-line text-[11px] leading-relaxed text-[#33475b]">
+                    {project.description}
+                  </p>
                 </div>
 
                 {/* CTA */}
