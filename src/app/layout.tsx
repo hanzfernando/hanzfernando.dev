@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, Geist_Mono, Geist } from "next/font/google";
+import { Analytics } from '@vercel/analytics/next';
 import "./global.css";
 
 const pressStart = Press_Start_2P({
@@ -70,6 +71,7 @@ export default function RootLayout({
         <div className="pointer-events-none absolute -top-32 -left-24 w-[480px] h-[480px] rounded-full bg-[#c8b98b]/[0.04] blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-0 w-[360px] h-[360px] rounded-full bg-[#5b82c4]/[0.05] blur-3xl" />
         {children}
+        <Analytics />
       </body>
     </html>
   );
