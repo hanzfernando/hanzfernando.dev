@@ -282,7 +282,7 @@ export const projects: PortfolioProject[] = [
             tagBadges['PostgreSQL'],
             tagBadges['AWS']
         ],
-        thumbnail: "/img_showcase/img_placeholder.jpg",
+        thumbnail: "/img_showcase/img_showcase-kloudtrack-admin.png",
         images: [],
         shortDescription: "Built a production monitoring platform with per-minute ingestion and high-volume weather data dashboards.",
         description: `Kloudtrack is a production monitoring platform for Kloudtech Corp, deployed across 5+ LGU command centers and processing 11,000+ weather records per day with per-minute ingestion.
