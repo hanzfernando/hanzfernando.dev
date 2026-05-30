@@ -42,6 +42,8 @@ export const GameEvents = {
   MOBILE_INTERACT: 'mobile-interact',
   TOUCH_MOVE_TO: 'touch-move-to',
   TELEPORT_TO: 'teleport-to',
+  GRASS_ENCOUNTER: 'grass-encounter',
+  PLAYER_INPUT_ENABLED: 'player-input-enabled',
   MUSIC_TOGGLE_MUTE: 'music-toggle-mute',
   MUSIC_MUTED_CHANGED: 'music-muted-changed',
 } as const

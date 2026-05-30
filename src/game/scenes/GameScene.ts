@@ -45,6 +45,7 @@ export class GameScene extends Phaser.Scene {
   private lastPlayerDepth = -1
   private lastReportedTileX = -1
   private lastReportedTileY = -1
+  private lastGrassEncounterAt = 0
 
   constructor() {
     super({ key: 'GameScene' })
@@ -531,6 +532,7 @@ export class GameScene extends Phaser.Scene {
 
     this.lastReportedTileX = tileX
     this.lastReportedTileY = tileY
+    this.checkGrassEncounter(tileX, tileY)
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -540,6 +542,22 @@ export class GameScene extends Phaser.Scene {
       // Store not available yet
     }
   }
+
+private checkGrassEncounter(tileX: number, tileY: number): void {
+    const tile = DECOR_MAP[tileY]?.[tileX]
+    if (tile !== DECOR.WILD_GRASS) return
+
+    // Remove the cooldown check entirely
+    // if (now - this.lastGrassEncounterAt < 3500) return
+
+    if (Math.random() > 0.1) return
+
+    EventBus.emit(GameEvents.GRASS_ENCOUNTER, {
+      tileX,
+      tileY,
+      encounterIndex: Math.floor(Math.random() * 6),
+    })
+}
 
   private sendJoin(): void {
     if (this.joined) return

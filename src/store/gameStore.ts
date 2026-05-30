@@ -1,6 +1,7 @@
 import { create } from 'zustand'
+import pokemon from '@/data/pokemon.json'
 
-export type PanelType = 'about' | 'projects' | 'resume' | 'contact' | 'career' | null
+export type PanelType = 'about' | 'projects' | 'resume' | 'contact' | 'career' | 'grass' | null
 export type GamePhase = 'title' | 'character-select' | 'playing'
 
 export interface ChatMessage {
@@ -18,6 +19,7 @@ interface GameStore {
   chatMessages: ChatMessage[]
   playerTileX: number | null
   playerTileY: number | null
+  grassEncounterIndex: number
   openPanel: (panel: PanelType) => void
   closePanel: () => void
   setUsername: (name: string) => void
@@ -26,6 +28,7 @@ interface GameStore {
   startPlaying: () => void
   addChatMessage: (msg: ChatMessage) => void
   setPlayerTile: (x: number, y: number) => void
+  setGrassEncounterIndex: (index: number) => void
   resetToTitle: () => void
 }
 
@@ -38,7 +41,16 @@ export const useGameStore = create<GameStore>((set) => ({
   chatMessages: [],
   playerTileX: null,
   playerTileY: null,
-  openPanel: (panel) => set({ activePanel: panel }),
+  grassEncounterIndex: 0,
+  openPanel: (panel) =>
+    set(() => {
+      if (panel !== 'grass' || pokemon.length === 0) {
+        return { activePanel: panel }
+      }
+
+      const encounterIndex = Math.floor(Math.random() * pokemon.length)
+      return { activePanel: panel, grassEncounterIndex: encounterIndex }
+    }),
   closePanel: () => set({ activePanel: null }),
   setUsername: (name) => set({ username: name, isUsernameSet: true }),
   setSelectedCharacter: (index) => set({ selectedCharacter: index }),
@@ -47,6 +59,7 @@ export const useGameStore = create<GameStore>((set) => ({
   addChatMessage: (msg) =>
     set((state) => ({ chatMessages: [...state.chatMessages, msg] })),
   setPlayerTile: (x, y) => set({ playerTileX: x, playerTileY: y }),
+  setGrassEncounterIndex: (index) => set({ grassEncounterIndex: index }),
   resetToTitle: () =>
     set({
       gamePhase: 'title',
@@ -57,5 +70,6 @@ export const useGameStore = create<GameStore>((set) => ({
       chatMessages: [],
       playerTileX: null,
       playerTileY: null,
+      grassEncounterIndex: 0,
     }),
 }))

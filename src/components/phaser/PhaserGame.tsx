@@ -9,6 +9,7 @@ export default function PhaserGame() {
 
   useEffect(() => {
     let destroyed = false
+    let cleanupEvents = () => {}
 
     async function init() {
       const Phaser = (await import('phaser')).default
@@ -40,19 +41,35 @@ export default function PhaserGame() {
       gameRef.current = game
 
       // Bridge Phaser interactions to React UI
-      EventBus.on(GameEvents.INTERACTION, (...args: unknown[]) => {
+      const handleInteraction = (...args: unknown[]) => {
         const data = args[0] as { type: string }
         const store = useGameStore.getState()
         if (data.type === 'about' || data.type === 'projects' || data.type === 'contact' || data.type === 'career') {
           store.openPanel(data.type)
         }
-      })
+      }
+
+      const handleGrassEncounter = (...args: unknown[]) => {
+        const data = args[0] as { encounterIndex?: number } | undefined
+        const store = useGameStore.getState()
+        store.setGrassEncounterIndex(data?.encounterIndex ?? 0)
+        EventBus.emit(GameEvents.PLAYER_INPUT_ENABLED, false)
+        store.openPanel('grass')
+      }
+
+      EventBus.on(GameEvents.INTERACTION, handleInteraction)
+      EventBus.on(GameEvents.GRASS_ENCOUNTER, handleGrassEncounter)
+      cleanupEvents = () => {
+        EventBus.off(GameEvents.INTERACTION, handleInteraction)
+        EventBus.off(GameEvents.GRASS_ENCOUNTER, handleGrassEncounter)
+      }
     }
 
     init()
 
     return () => {
       destroyed = true
+      cleanupEvents()
       if (gameRef.current) {
         gameRef.current.destroy(true)
         gameRef.current = null

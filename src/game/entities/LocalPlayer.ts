@@ -81,6 +81,14 @@ export class LocalPlayer {
       this.pathQueue = this.computePath(this._tileX, this._tileY, tileX, tileY)
     })
 
+    EventBus.on(GameEvents.PLAYER_INPUT_ENABLED, (payload: unknown) => {
+      const enabled = Boolean(payload)
+      this.setInputEnabled(enabled)
+      if (!enabled) {
+        this.pathQueue = []
+      }
+    })
+
     // Instant teleport used by HUD quick menu actions.
     EventBus.on(GameEvents.TELEPORT_TO, (payload: unknown) => {
       const { tileX, tileY } = payload as { tileX: number; tileY: number }
@@ -364,6 +372,7 @@ export class LocalPlayer {
     EventBus.off(GameEvents.MOBILE_MOVE)
     EventBus.off(GameEvents.TOUCH_MOVE_TO)
     EventBus.off(GameEvents.TELEPORT_TO)
+    EventBus.off(GameEvents.PLAYER_INPUT_ENABLED)
     this.sprite.destroy()
   }
 }

@@ -11,6 +11,8 @@ import ProjectsPanel from '@/components/panels/ProjectsPanel'
 import ContactPanel from '@/components/panels/ContactPanel'
 import CareerPanel from '@/components/panels/CareerPanel'
 import ResumePanel from '@/components/panels/ResumePanel'
+import GrassEncounterPanel from '@/components/panels/GrassEncounterPanel'
+import { EventBus, GameEvents } from '@/game/EventBus'
 
 const PhaserGame = dynamic(() => import('@/components/phaser/PhaserGame'), {
   ssr: false,
@@ -23,6 +25,12 @@ const PhaserGame = dynamic(() => import('@/components/phaser/PhaserGame'), {
 
 export default function Home() {
   const { activePanel, closePanel, gamePhase } = useGameStore()
+
+  const closeGrassEncounter = () => {
+    closePanel()
+    EventBus.emit(GameEvents.PLAYER_INPUT_ENABLED, true)
+  }
+
   return (
     <div className="relative mx-auto h-screen w-full max-w-[1440px] overflow-hidden border-x-4 border-[#111827] bg-[#0f2540] shadow-[0_0_0_4px_#213f66]">
       <div className="absolute inset-0">
@@ -37,6 +45,7 @@ export default function Home() {
             {activePanel === 'resume' && <ResumePanel onClose={closePanel} />}
             {activePanel === 'contact' && <ContactPanel onClose={closePanel} />}
             {activePanel === 'career' && <CareerPanel onClose={closePanel} />}
+            {activePanel === 'grass' && <GrassEncounterPanel onClose={closeGrassEncounter} />}
           </>
         )}
         <StartScreen />
