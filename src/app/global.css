@@ -3,6 +3,8 @@
 :root {
   --font-pixel: var(--font-press-start);
 
+  --main:  #A5F3FC;
+
   --nb-bg-deep: #173257;
   --nb-bg-mid: #245084;
   --nb-bg-soft: #5f8fc1;
@@ -109,6 +111,52 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background);
   color: var(--foreground);
+}
+
+.retro-textured-bg {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(95, 143, 193, 0.12), transparent 28rem),
+    radial-gradient(circle at 82% 18%, rgba(240, 195, 79, 0.07), transparent 24rem),
+    linear-gradient(180deg, #0b0d11 0%, #10141b 48%, #0c0e11 100%);
+  overflow-x: hidden;
+}
+
+.retro-bg-layer,
+.retro-bg-layer::before,
+.retro-bg-layer::after {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.retro-bg-layer {
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(165, 243, 252, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(165, 243, 252, 0.03) 1px, transparent 1px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 4px);
+  background-size: 32px 32px, 32px 32px, 100% 4px;
+  opacity: 0.78;
+}
+
+.retro-bg-layer::before {
+  content: "";
+  background-image:
+    radial-gradient(circle, rgba(165, 243, 252, 0.52) 0 1px, transparent 1.4px),
+    radial-gradient(circle, rgba(240, 195, 79, 0.35) 0 1px, transparent 1.4px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 1px, transparent 1.3px);
+  background-position: 12px 18px, 76px 44px, 38px 92px;
+  background-size: 140px 140px, 190px 190px, 250px 250px;
+  opacity: 0.55;
+}
+
+.retro-bg-layer::after {
+  content: "";
+  background:
+    linear-gradient(90deg, transparent, rgba(165, 243, 252, 0.06), transparent),
+    radial-gradient(circle at center, transparent 0, rgba(0, 0, 0, 0.38) 78%);
+  mix-blend-mode: screen;
+  opacity: 0.45;
 }
 
 .pixel-font {

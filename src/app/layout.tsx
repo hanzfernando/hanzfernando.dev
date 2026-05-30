@@ -65,11 +65,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${pressStart.variable} ${geistMono.variable} ${geist.variable}`}>
-      <body className="relative min-h-screen bg-[#0d0f12] ">
-
-        {/* Ambient glows */}
-        <div className="pointer-events-none absolute -top-32 -left-24 w-[480px] h-[480px] rounded-full bg-[#c8b98b]/[0.04] blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 right-0 w-[360px] h-[360px] rounded-full bg-[#5b82c4]/[0.05] blur-3xl" />
+      <body className="retro-textured-bg relative min-h-screen">
+        <div className="retro-bg-layer" aria-hidden="true" />
         {children}
         <Analytics />
       </body>

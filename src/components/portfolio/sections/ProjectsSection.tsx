@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, ExternalLink } from 'lucide-react'
+import { ArrowRight, CheckCircle2, ExternalLink, Minus, Plus } from 'lucide-react'
 import TechBadge from '@/components/portfolio/TechBadge'
 import UseCaseBadge from '@/components/portfolio/UseCaseBadge'
 import { projects } from '@/data/projects'
@@ -12,6 +12,21 @@ const featuredProjects = projects
   .filter((project) => project.isFeatured)
   .sort((a, b) => b.id - a.id)
   .slice(0, 3)
+
+const parseProjectDescription = (description: string) => {
+  const [overviewText, contributionText = ''] = description.split('Key Contributions:')
+  const overview = overviewText
+    .trim()
+    .split('\n')
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+  const contributions = contributionText
+    .split('\n')
+    .map((line) => line.trim().replace(/^- /, ''))
+    .filter(Boolean)
+
+  return { overview, contributions }
+}
 
 const ProjectsSection = () => {
   const [expandedIds, setExpandedIds] = useState<number[]>([])
@@ -39,73 +54,101 @@ const ProjectsSection = () => {
       </p>
 
       <div className='mt-4 grid gap-3'>
-        {featuredProjects.map((project, index) => {
+        {featuredProjects.map((project) => {
           const isExpanded = expandedIds.includes(project.id)
+          const { overview, contributions } = parseProjectDescription(project.description)
 
           return (
           <article
             key={project.id}
-            className={`border border-white/10 bg-black/20 p-3 ${index === 0 ? 'md:p-4' : ''}`}
+            className='relative overflow-hidden border border-white/10 bg-black/20 transition-colors hover:border-white/20'
           >
-            <div className='grid gap-3 md:grid-cols-[320px_1fr]'>
-              <div className='w-full bg-black/25'>
+            <div className='grid gap-0 md:grid-cols-[minmax(280px,360px)_1fr]'>
+              <div className='self-start bg-black/25 p-2'>
                 <Image
                   src={project.thumbnail}
-                  alt={project.title}
+                  alt={`${project.title} screenshot`}
                   width={800}
                   height={600}
-                  className='w-full h-auto object-contain'
+                  sizes='(max-width: 768px) 100vw, 360px'
+                  className='h-auto w-full object-contain'
                 />
               </div>
 
-              <div className='flex flex-col'>
-                <div className='flex items-start justify-between gap-2'>
+              <div className='flex flex-col p-4 md:pr-24'>
+                <div className='flex items-start justify-between gap-3'>
                   <div>
-                    <h3 className='font-bold font-mono text-sm md:text-base'>{project.title}</h3>
-                    <div className='mt-1'>
+                    <div className='mb-2'>
                       <UseCaseBadge useCase={project.useCase} />
                     </div>
+                    <h3 className='font-bold font-mono text-base leading-snug'>{project.title}</h3>
                   </div>
-                  {project.link ? (
-                    <a
-                      href={project.link}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      className='shrink-0 inline-flex items-center gap-1 border border-white/15 px-2 py-1 text-xs hover:bg-white/10 transition-colors'
-                    >
-                      Visit
-                      <ExternalLink size={13} />
-                    </a>
-                  ) : null}
                 </div>
 
-                <div className='mt-3 flex flex-wrap gap-1.5'>
-                  {project.tags.map((tagUrl, tagIndex) => (
-                    <TechBadge key={`${project.id}-tag-${tagIndex}`} tagUrl={tagUrl} />
-                  ))}
+                <p className='mt-3 text-sm opacity-85 leading-relaxed'>{project.shortDescription}</p>
+
+                <div className='mt-4 border-t border-white/10 pt-3'>
+                  <p className='mb-2 font-mono text-[10px] uppercase tracking-widest opacity-45'>Stack</p>
+                  <div className='flex flex-wrap gap-1.5'>
+                    {project.tags.map((tagUrl, tagIndex) => (
+                      <TechBadge key={`${project.id}-tag-${tagIndex}`} tagUrl={tagUrl} />
+                    ))}
+                  </div>
                 </div>
 
-                <div className='relative flex-1 mt-2 flex items-center justify-between gap-3'>
-                  <p className='text-sm opacity-85 leading-relaxed'>{project.shortDescription}</p>
-                  <button
-                    type='button'
-                    onClick={() => toggleExpanded(project.id)}
-                    className='absolute right-0 bottom-0 ml-auto inline-flex h-6 w-6 items-center justify-center border border-white/20 text-[12px] text-white/70 hover:text-white'
-                    aria-expanded={isExpanded}
-                    aria-label={isExpanded ? 'Show less' : 'Learn more'}
-                  >
-                    {isExpanded ? '-' : '+'}
-                  </button>
-                </div>
-
-                
               </div>
             </div>
 
+            <div className='flex justify-end gap-1.5 px-4 mb-4 md:absolute md:right-3 md:top-3 md:p-0'>
+              {project.link ? (
+                <a
+                  href={project.link}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='inline-flex h-8 items-center gap-1 border border-white/20 bg-black/35 px-2 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white'
+                >
+                  Visit
+                  <ExternalLink size={13} />
+                </a>
+              ) : null}
+              <button
+                type='button'
+                onClick={() => toggleExpanded(project.id)}
+                className='inline-flex h-8 w-8 items-center justify-center border border-white/20 bg-black/35 text-white/70 transition-colors hover:bg-white/10 hover:text-white'
+                aria-expanded={isExpanded}
+                aria-label={isExpanded ? 'Show less' : 'Learn more'}
+              >
+                {isExpanded ? <Minus size={15} /> : <Plus size={15} />}
+              </button>
+            </div>
+
             {isExpanded ? (
-              <p className='mt-3 text-sm opacity-85 leading-relaxed whitespace-pre-line'>
-                {project.description}
-              </p>
+              <div className='border-t border-white/10 p-4'>
+                <div className='grid gap-5 md:grid-cols-[0.9fr_1.1fr]'>
+                  <div>
+                    <h4 className='font-mono text-xs uppercase tracking-widest opacity-55'>Overview</h4>
+                    <div className='mt-2 space-y-3'>
+                      {overview.map((paragraph) => (
+                        <p key={paragraph} className='text-sm leading-relaxed opacity-85'>
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className='font-mono text-xs uppercase tracking-widest opacity-55'>Key Contributions</h4>
+                    <ul className='mt-2 space-y-2'>
+                      {contributions.map((contribution) => (
+                        <li key={contribution} className='flex gap-2 text-sm leading-relaxed opacity-85'>
+                          <CheckCircle2 className='mt-0.5 h-4 w-4 shrink-0 text-[var(--main)]' aria-hidden />
+                          <span>{contribution}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
             ) : null}
           </article>
         )})}
