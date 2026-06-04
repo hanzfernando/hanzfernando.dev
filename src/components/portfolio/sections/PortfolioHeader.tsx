@@ -52,7 +52,7 @@ const PortfolioHeader = () => {
     <section>
       <div className='flex'>
         <Image
-          src='/hanz.png'
+          src='/profile/hanz_profile.jpg'
           alt='Profile Picture'
           width={500}
           height={500}

@@ -69,6 +69,7 @@ export const skillCategories: SkillCategory[] = [
     techs: [
       tech('Node.js', SiNodedotjs, '#339933', true),
       tech('Express', SiExpress, '#000000'),
+      tech('ASP.NET Core', SiSharp, '#239120'),
       tech('Prisma', SiPrisma, '#2D3748', true),
     ],
   },

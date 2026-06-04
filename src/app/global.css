@@ -132,8 +132,8 @@ body {
 .retro-bg-layer {
   z-index: -1;
   background-image:
-    linear-gradient(rgba(165, 243, 252, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(165, 243, 252, 0.03) 1px, transparent 1px),
+    linear-gradient(rgba(165, 243, 252, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(165, 243, 252, 0.02) 1px, transparent 1px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 4px);
   background-size: 32px 32px, 32px 32px, 100% 4px;
   opacity: 0.78;
